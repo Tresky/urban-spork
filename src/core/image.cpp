@@ -2,6 +2,7 @@
 #include "image.hpp"
 
 #include "video_manager.hpp"
+#include "system.hpp"
 
 namespace rpg_video
 {
@@ -84,6 +85,72 @@ void Image::Draw()
   VideoManager->DrawSprite(sprite);
 }
 
+AnimatedImage::AnimatedImage(const unsigned int _width,
+                             const unsigned int _height)
+  : current_frame(0)
+  , frame_counter(0)
+  , number_loops(-1)
+  , loop_counter(0)
+  , finished(false)
+{}
 
+bool AnimatedImage::LoadSpritesheetScript(const std::string &_filepath)
+{
+  return true;
+}
+
+void AnimatedImage::Draw()
+{
+  if (frames.empty())
+  {
+    IF_PRINT_DEBUG(VIDEO_DEBUG) << "No frames in animation" << endl;
+    return;
+  }
+
+  frames[current_frame].image.Draw();
+}
+
+void AnimatedImage::Reset()
+{
+  current_frame = 0;
+  frame_counter = 0;
+  loop_counter = 0;
+  finished = false;
+}
+
+void AnimatedImage::Update()
+{
+  // If we have 1 or less frames, no need to update
+  // Also if we are "finished", we don't need to update
+  if (frames.size() <= 1 || finished)
+    return;
+
+  // Get the elapsed time from the SystemManager
+  unsigned int elapsed_time = rpg_system::SystemManager->GetUpdateTime();
+
+  while (frame_counter >= frames[current_frame].frame_time)
+  {
+    // If frame_time is equal to zero, it's a terminating frame.
+    if (frames[current_frame].frame_time == 0)
+    {
+      finished = true;
+      return;
+    }
+
+    elapsed_time = frame_counter - frames[current_frame++].frame_time;
+    if (current_frame >= frames.size())
+    {
+      if (number_loops >= 0 && ++loop_counter >= number_loops)
+      {
+        finished = true;
+        frame_counter = 0;
+        current_frame = frames.size() - 1;
+        return;
+      }
+      current_frame = 0;
+    }
+    frame_counter = elapsed_time;
+  }
+}
 
 }
