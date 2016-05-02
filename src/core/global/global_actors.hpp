@@ -1,6 +1,8 @@
 #ifndef GLOBAL_ACTORS_HPP
 #define GLOBAL_ACTORS_HPP
 
+#include "../image.hpp"
+
 namespace rpg_video
 { class Image; }
 
@@ -33,6 +35,8 @@ private:
   int resource_id;
 
   sf::Vector2f position;
+
+  map<std::string, rpg_video::AnimatedImage> animations;
 };
 
 }
