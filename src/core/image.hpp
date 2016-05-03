@@ -3,6 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 
+namespace std
+{ class vector; }
+
 namespace rpg_resource
 { class ResourceEngine; }
 

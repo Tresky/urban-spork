@@ -28,12 +28,18 @@ public:
    * @param  _filename String for the filepath to the Lua script
    * @return           True if successful, false otherwise
    */
-  virtual bool OpenFile(std::string& _filename);
+  virtual bool OpenFile(const std::string& _filename);
 
   /**
    * Closes the currently opened file.
    */
   virtual void CloseFile();
+
+  /**
+   * [OpenTable description]
+   * @param _table_name [description]
+   */
+  bool OpenTable(const std::string& _table_name);
 
   /**
    * Templated function to read data from the Lua script.
@@ -45,32 +51,29 @@ public:
   template <class T> T ReadData(const int _key, T _default);
 
 private:
-  // Pointer to Lua State
+  //! Pointer to Lua State
   lua_State* L;
+
+  //!
+  luabridge::LuaRef current_ref;
 };
 
 template <class T> T ReadScript::ReadData(const std::string& _key, T _default)
 {
-  LuaRef ref = getGlobal(L, _key);
+  luabridge::LuaRef ref = (current_ref)[_key];
   if (ref.isNil())
-  {
-    IF_PRINT_DEBUG(SCRIPT_DEBUG) << "Unable to get variable: " << _key << endl;
     return _default;
-  }
 
-  return ref.cast<T>;
+  return ref.cast<T>();
 }
 
 template <class T> T ReadScript::ReadData(const int _key, T _default)
 {
-  LuaRef ref = getGlobal(L, _key);
+  luabridge::LuaRef ref = (current_ref)[_key];
   if (ref.isNil())
-  {
-    IF_PRINT_DEBUG(SCRIPT_DEBUG) << "Unable to get variable: " << _key << endl;
     return _default;
-  }
 
-  return ref.cast<T>;
+  return ref.cast<T>();
 }
 
 }

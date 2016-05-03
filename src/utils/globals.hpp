@@ -1,11 +1,41 @@
 /**
- * globals.hpp
+ * \file globals.hpp
  *
  * Contains all includes and functionality
  * that is global across the entire project.
  *
- * @author: Tyler Petresky <hello@tylerpetresky.com>
- * @date: 03-12-16
+ * \author Tyler Petresky <hello@tylerpetresky.com>
+ * \date 03-12-16
+ */
+
+/**
+ * \defgroup Utilities Utilities
+ *
+ * Package containing all of the extraneous
+ * functionalities that are necessary across most of
+ * the program. This includes things like:
+ *  - Exceptions
+ *  - Singletons
+ *  - Lua Bridge
+ *  - TermColor
+ *  - Global Definitions
+ */
+
+/**
+ * \defgroup SystemEngine SystemEngine
+ *
+ */
+
+/**
+ * \defgroup ModeEngine
+ */
+
+/**
+ * \defgroup ScriptEngine
+ */
+
+/**
+ * \defgroup VideoEngine VideoEngine
  */
 
 // C++ Standard Libraries
@@ -32,11 +62,10 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
-// Additional Libraries
+// Additional External Libraries
 #include "termcolor.hpp"
-//#include "selene.hpp"
 
-
+// Custom Libraries
 #include "../core/resources.hpp"
 #include "exception.hpp"
   using rpg_utils::Exception;

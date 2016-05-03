@@ -27,7 +27,7 @@ public:
   bool InitSingleton();
 
   /**
-   * Loads an image into the ResourcEngine and returns
+   * Loads an image into the ResourceEngine and returns
    * a global id to it's pointer.
    * @param  _filepath Filepath to image to load
    * @return           Global id to access image pointer

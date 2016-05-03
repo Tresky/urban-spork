@@ -42,16 +42,24 @@ void GlobalEngine::NewGame()
   global_characters[0] = new GlobalCharacter();
   hero_id = 0;
 
-  int id = rpg_resource::ResourceManager->LoadImage("data/gchar/hero.png");
-  if (id < 0)
+  if (!global_characters[0]->LoadAnimations("data/gchar/actor-walking.lua"))
   {
-    PRINT_ERROR << "Failed to load character" << endl;
+    PRINT_ERROR << "Failed to load animations for character" << endl;
     delete global_characters[0];
     global_characters[0] = nullptr;
     return;
   }
 
-  global_characters[0]->SetMapImage(id);
+  // int id = rpg_resource::ResourceManager->LoadImage("data/gchar/hero.png");
+  // if (id < 0)
+  // {
+  //   PRINT_ERROR << "Failed to load character" << endl;
+  //   delete global_characters[0];
+  //   global_characters[0] = nullptr;
+  //   return;
+  // }
+  //
+  // global_characters[0]->SetMapImage(id);
   global_characters[0]->SetPosition(32, 32);
 
   // Let the input manager about the hero
@@ -59,6 +67,13 @@ void GlobalEngine::NewGame()
 
   // This will change later
   //global_character[0] = new GlobalCharacter("path/to/sprite");
+}
+
+void GlobalEngine::Update()
+{
+  map<signed int, GlobalCharacter*>::iterator iter;
+  for (iter = global_characters.begin(); iter != global_characters.end(); ++iter)
+    iter->second->Update();
 }
 
 void GlobalEngine::DrawGlobalCharacters()

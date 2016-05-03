@@ -14,10 +14,15 @@ class GlobalCharacter
 public:
   GlobalCharacter()
     : resource_id(-1)
+    , current_animation("")
   {}
 
   ~GlobalCharacter()
   {}
+
+  bool LoadAnimations(const std::string& _filepath);
+
+  void SetCurrentAnimation(const std::string& _key);
 
   void SetMapImage(const unsigned int _id);
 
@@ -29,6 +34,8 @@ public:
 
   void Move(const int _x, const int _y);
 
+  void Update();
+
   void Draw();
 
 private:
@@ -36,7 +43,9 @@ private:
 
   sf::Vector2f position;
 
-  map<std::string, rpg_video::AnimatedImage> animations;
+  map<std::string, rpg_video::AnimatedImage*> animations;
+
+  std::string current_animation;
 };
 
 }

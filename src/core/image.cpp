@@ -96,7 +96,24 @@ AnimatedImage::AnimatedImage(const unsigned int _width,
 
 bool AnimatedImage::LoadSpritesheetScript(const std::string &_filepath)
 {
-  return true;
+
+  // ReadScript sprite_script;
+  // if (!sprite_script.OpenFile(_filepath))
+  // {
+  //   PRINT_ERROR << "Failed to open spritesheet script: " << _filepath << endl;
+  //   return false;
+  // }
+  //
+  // if (!sprite_script.OpenTable("animations"))
+  // {
+  //   PRINT_ERROR << "Table doesn't exist in script: animations" << endl;
+  //   return false;
+  // }
+  //
+  // string filepath = sprite_script.ReadData<std::string>("filepath", "");
+  // cout << "FilePath : " << filepath << endl;
+  //
+  // return true;
 }
 
 void AnimatedImage::Draw()

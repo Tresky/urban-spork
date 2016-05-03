@@ -38,11 +38,11 @@ public:
   {
     if (!window)
     {
-      IF_PRINT_DEBUG(VIDEO_DEBUG) << "Window created" << endl;
       screen_width = _width;
       screen_height = _height;
       window = new sf::RenderWindow(sf::VideoMode(screen_width, screen_height), _title);
       window->setFramerateLimit(60);
+      IF_PRINT_DEBUG(VIDEO_DEBUG) << "Window created" << endl;
     }
     else
       IF_PRINT_DEBUG(VIDEO_DEBUG) << "Window already created" << endl;

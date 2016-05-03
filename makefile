@@ -12,7 +12,7 @@ INCS = -I/usr/local/include
 
 #### OBJECT FILES ####
 # Engine Objects
-_ENG_OBJ = system.o mode_manager.o video_manager.o script.o resources.o image.o input.o
+_ENG_OBJ = system.o mode_manager.o video_manager.o script.o script_read.o resources.o image.o input.o
 ENG_OBJ = $(patsubst %, $(ODIR)/%, $(_ENG_OBJ))
 
 # Global Objects
@@ -27,7 +27,7 @@ MOD_OBJ = $(patsubst %, $(ODIR)/%, $(_MOD_OBJ))
 
 #### DEPENDENCY HEADER FILES ####
 # Engine Headers
-_ENG_DEP = system.hpp mode_manager.hpp video_manager.hpp script.hpp resources.hpp image.hpp input.hpp
+_ENG_DEP = system.hpp mode_manager.hpp video_manager.hpp script.hpp script_read.hpp resources.hpp image.hpp input.hpp
 ENG_DEP = $(patsubst %, ./src/core/%, $(_ENG_DEP))
 
 # Global Headers

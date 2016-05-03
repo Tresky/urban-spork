@@ -38,7 +38,12 @@ extern ScriptEngine* ScriptManager;
 extern bool SCRIPT_DEBUG;
 
 /**
+ * This class acts as an abstract base class for ReadScript
+ * and WriteScript. This allows the ScriptManager to store
+ * all of the Script handlers in the same data structure.
  *
+ * As this class is abstract, it cannot be instantiated. Any
+ * attempt to will generate a compiler error.
  */
 class Script
 {
@@ -46,7 +51,7 @@ public:
   /**
    * Constructor
    */
-  Script() {}
+  Script() : is_opened(false) {}
 
   /**
    * Destructor
@@ -79,6 +84,8 @@ protected:
   lua_State *L;
 
   std::string filename;
+
+  bool is_opened;
 };
 
 /**
@@ -93,6 +100,11 @@ public:
    * Destructor
    */
   ~ScriptEngine();
+
+  lua_State* GetLuaState()
+  {
+    return L;
+  }
 
   /**
    * [InitSingleton description]

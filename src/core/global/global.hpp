@@ -43,6 +43,8 @@ public:
 
   void NewGame();
 
+  void Update();
+
   void DrawGlobalCharacters();
 
 private:

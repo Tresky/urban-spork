@@ -1,9 +1,10 @@
 #include "map_utils.hpp"
 
-#include <iostream>
+// Map Mode namespace
 namespace rpg_map_mode
 {
 
+// Private Map Mode namespace
 namespace private_map_mode
 {
 
@@ -17,8 +18,6 @@ bool MapRectangle::CheckIntersection(const MapRectangle& _one, const MapRectangl
   return true;
 }
 
+} // Private Map Mode namespace
 
-}
-
-
-}
+} // Map Mode namespace
