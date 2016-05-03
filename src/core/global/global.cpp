@@ -42,14 +42,14 @@ void GlobalEngine::NewGame()
   global_characters[0] = new GlobalCharacter();
   hero_id = 0;
 
-  if (!global_characters[0]->LoadAnimations("data/gchar/actor-walking.lua"))
+  if (!global_characters[0]->LoadAnimations("data/gchar/actor0-walking.lua"))
   {
     PRINT_ERROR << "Failed to load animations for character" << endl;
     delete global_characters[0];
     global_characters[0] = nullptr;
     return;
   }
-
+  global_characters[0]->SetCurrentAnimation("walk-south");
   // int id = rpg_resource::ResourceManager->LoadImage("data/gchar/hero.png");
   // if (id < 0)
   // {

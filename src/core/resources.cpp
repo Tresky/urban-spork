@@ -75,7 +75,7 @@ unsigned int ResourceEngine::LoadImageRect(const std::string& _filepath, sf::Int
   // We have a cache miss.
   // This is important because we don't want to have to
   // reload the tilesheet from disk for every tile we
-  // load into the ResourcEngine.
+  // load into the ResourceEngine.
   if (image_cache.first != _filepath)
   {
     if (!image_cache.second.loadFromFile(_filepath))

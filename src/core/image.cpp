@@ -1,8 +1,11 @@
 #include "../utils/globals.hpp"
 #include "image.hpp"
 
+#include "resources.hpp"
 #include "video_manager.hpp"
 #include "system.hpp"
+
+using namespace rpg_resource;
 
 namespace rpg_video
 {
@@ -91,8 +94,16 @@ AnimatedImage::AnimatedImage(const unsigned int _width,
   , frame_counter(0)
   , number_loops(-1)
   , loop_counter(0)
+  , frame_delta(1)
   , finished(false)
 {}
+
+void AnimatedImage::AddFrame(const unsigned int _resource_id)
+{
+  frames.push_back(new private_video::AnimationFrame());
+  frames.back()->resource_id = _resource_id;
+  frames.back()->frame_time = 200;
+}
 
 bool AnimatedImage::LoadSpritesheetScript(const std::string &_filepath)
 {
@@ -116,6 +127,13 @@ bool AnimatedImage::LoadSpritesheetScript(const std::string &_filepath)
   // return true;
 }
 
+void AnimatedImage::SetPosition(const unsigned int _x, const unsigned int _y)
+{
+  for (auto frame : frames)
+  ResourceManager->GetImage(frame->resource_id)
+                 ->SetPosition(_x, _y);
+}
+
 void AnimatedImage::Draw()
 {
   if (frames.empty())
@@ -124,7 +142,7 @@ void AnimatedImage::Draw()
     return;
   }
 
-  frames[current_frame].image.Draw();
+  ResourceManager->DrawImage(frames[current_frame]->resource_id);
 }
 
 void AnimatedImage::Reset()
@@ -144,30 +162,39 @@ void AnimatedImage::Update()
 
   // Get the elapsed time from the SystemManager
   unsigned int elapsed_time = rpg_system::SystemManager->GetUpdateTime();
-
-  while (frame_counter >= frames[current_frame].frame_time)
+  
+  // If frame_time is equal to zero, it's a terminating frame.
+  if (frames[current_frame]->frame_time == 0)
   {
-    // If frame_time is equal to zero, it's a terminating frame.
-    if (frames[current_frame].frame_time == 0)
+    finished = true;
+    return;
+  }
+
+  frame_counter += elapsed_time;
+  if (frame_counter > frames[current_frame]->frame_time)
+  {
+    current_frame += frame_delta;
+    frame_counter = 0;
+    if (current_frame == 0 || current_frame == frames.size() - 1)
+      frame_delta *= -1;
+  }
+
+  if (current_frame >= frames.size())
+  {
+    if (number_loops >= 0 && ++loop_counter >= number_loops)
     {
       finished = true;
+      frame_counter = 0;
+      current_frame = frames.size() - 1;
       return;
     }
-
-    elapsed_time = frame_counter - frames[current_frame++].frame_time;
-    if (current_frame >= frames.size())
-    {
-      if (number_loops >= 0 && ++loop_counter >= number_loops)
-      {
-        finished = true;
-        frame_counter = 0;
-        current_frame = frames.size() - 1;
-        return;
-      }
-      current_frame = 0;
-    }
-    frame_counter = elapsed_time;
+    current_frame = 0;
   }
+}
+
+Image* AnimatedImage::GetCurrentFrame()
+{
+  return ResourceManager->GetImage(frames[current_frame]->resource_id);
 }
 
 }

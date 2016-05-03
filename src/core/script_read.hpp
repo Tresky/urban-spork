@@ -35,11 +35,16 @@ public:
    */
   virtual void CloseFile();
 
+  void BookmarkCurrentTable();
+
+  void LoadBookmark();
+
   /**
    * [OpenTable description]
    * @param _table_name [description]
    */
   bool OpenTable(const std::string& _table_name);
+  bool OpenTableIntegers(const int _index);
 
   /**
    * Templated function to read data from the Lua script.
@@ -55,7 +60,7 @@ private:
   lua_State* L;
 
   //!
-  luabridge::LuaRef current_ref;
+  luabridge::LuaRef current_ref, bookmark;
 };
 
 template <class T> T ReadScript::ReadData(const std::string& _key, T _default)

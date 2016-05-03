@@ -105,7 +105,7 @@ public:
   unsigned int frame_time;
 
   // Image which to show
-  Image image;
+  unsigned int resource_id;
 };
 
 }
@@ -121,6 +121,8 @@ public:
   explicit AnimatedImage(const unsigned int _width,
                          const unsigned int _height);
 
+  void AddFrame(const unsigned int _resource_id);
+
   /**
    * Loads the animation data from a Lua script denoted
    * by the parameter name.
@@ -128,6 +130,8 @@ public:
    * @return           True if successful, false otherwise
    */
   bool LoadSpritesheetScript(const std::string &_filepath);
+
+  void SetPosition(const unsigned int _x, const unsigned int _y);
 
   /**
    * Draws the current frame of the animation.
@@ -159,10 +163,7 @@ public:
    * Returns an Image pointer to the current frame.
    * @return Image* for the current frame
    */
-  Image* GetCurrentFrame()
-  {
-    return &frames[current_frame].image;
-  }
+  Image* GetCurrentFrame();
 
   /**
    * Returns the index to the currnent frame.
@@ -220,11 +221,13 @@ private:
   // Total number of loops completed
   unsigned int loop_counter;
 
+  signed int frame_delta;
+
   // Set to true to stop the animation; false to play
   bool finished;
 
   // Vector containing the images for the frames
-  std::vector<private_video::AnimationFrame> frames;
+  std::vector<private_video::AnimationFrame*> frames;
 
 
 };

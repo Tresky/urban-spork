@@ -34,6 +34,8 @@ MapMode::MapMode(const string& _lua_filepath)
 
 void MapMode::Update()
 {
+  rpg_global::GlobalManager->Update();
+
   rpg_global::GlobalCharacter* hero = rpg_global::GlobalManager->GetHero();
   if (!hero)
     return;

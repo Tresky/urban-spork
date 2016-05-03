@@ -5,29 +5,60 @@
 #include "../image.hpp"
 
 using namespace rpg_script;
+using namespace rpg_resource;
+using namespace rpg_video;
 
 namespace rpg_global
 {
 
 bool GlobalCharacter::LoadAnimations(const std::string& _filepath)
 {
-  // cout << "hola" << endl;
   ReadScript sprite_script;
-  cout << "Opening Script: " << _filepath << endl;
   if (!sprite_script.OpenFile(_filepath))
-  {
-    PRINT_ERROR << "Failed to open spritesheet script: " << _filepath << endl;
-    return false;
-  }
-cout << "hello" << endl;
+    throw Exception("Failed to open spritesheet script: " + _filepath);
+
   if (!sprite_script.OpenTable("animations"))
-  {
-    PRINT_ERROR << "Table doesn't exist in script: animations" << endl;
-    return false;
-  }
+    throw Exception("Table doesn't exist in script: animations");
 
   string filepath = sprite_script.ReadData<std::string>("filepath", "");
-  cout << "FilePath : " << filepath << endl;
+  if (filepath.empty())
+    return false;
+
+  if (!sprite_script.OpenTableIntegers(0))
+    throw Exception("Table doesn't exist in script: 0");
+    cout << "ajshdkajshd" << endl;
+
+  string animation_name = sprite_script.ReadData<std::string>("name", "");
+  if (animation_name.empty())
+    return false;
+
+  int num_frames = sprite_script.ReadData<int>("num_frames", -1);
+  if (num_frames == -1)
+    return false;
+
+
+  if (!sprite_script.OpenTable("frame_rects"))
+    throw Exception("Table doesn't exist in script: frame_rects");
+
+  sprite_script.BookmarkCurrentTable();
+
+  animations[animation_name] = new AnimatedImage(32, 32);
+  for (int i = 1; i < num_frames + 1; ++i)
+  {
+    sprite_script.OpenTableIntegers(i);
+    int x = sprite_script.ReadData<int>("x", -1);
+    int y = sprite_script.ReadData<int>("y", -1);
+    if (x < 0 || y < 0)
+      return false;
+
+    sf::IntRect rect = sf::IntRect(x, y, 32, 32);
+    int resource_id = ResourceManager->LoadImageRect(filepath, rect);
+    if (resource_id < 0)
+      return false;
+
+    animations[animation_name]->AddFrame(resource_id);
+    sprite_script.LoadBookmark();
+  }
 
   return true;
 }
@@ -61,6 +92,8 @@ void GlobalCharacter::SetPosition(const int _x, const int _y)
   position.x = _x;
   position.y = _y;
 
+  animations[current_animation]->SetPosition(_x, _y);
+
   //GetMapImage()->SetPosition(position.x, position.y);
 }
 
@@ -71,15 +104,15 @@ void GlobalCharacter::Move(const int _x, const int _y)
 
 void GlobalCharacter::Update()
 {
-  // if (animations.find(current_animation) != animations.end())
-  //   animations[current_animation]->Update();
+  if (animations.find(current_animation) != animations.end())
+    animations[current_animation]->Update();
 }
 
 void GlobalCharacter::Draw()
 {
-  // if (animations.find(current_animation) != animations.end())
-  //   animations[current_animation]->Draw();
-  // rpg_resource::ResourceManager->DrawImage(resource_id);
+  if (animations.find(current_animation) != animations.end())
+    animations[current_animation]->Draw();
+  //rpg_resource::ResourceManager->DrawImage(resource_id);
 }
 
 }

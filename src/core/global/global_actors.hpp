@@ -18,7 +18,9 @@ public:
   {}
 
   ~GlobalCharacter()
-  {}
+  {
+    // Need to delete animations
+  }
 
   bool LoadAnimations(const std::string& _filepath);
 
