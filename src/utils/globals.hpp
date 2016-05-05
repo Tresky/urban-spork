@@ -50,6 +50,10 @@
   using std::ofstream;
 #include <vector>
   using std::vector;
+#include <stack>
+  using std::stack;
+#include <queue>
+  using std::queue;
 #include <string>
   using std::string;
   using std::to_string;

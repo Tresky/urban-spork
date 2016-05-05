@@ -35,16 +35,14 @@ public:
    */
   virtual void CloseFile();
 
-  void BookmarkCurrentTable();
-
-  void LoadBookmark();
-
   /**
    * [OpenTable description]
    * @param _table_name [description]
    */
   bool OpenTable(const std::string& _table_name);
   bool OpenTableIntegers(const int _index);
+
+  void CloseTable();
 
   /**
    * Templated function to read data from the Lua script.
@@ -59,24 +57,30 @@ private:
   //! Pointer to Lua State
   lua_State* L;
 
-  //!
-  luabridge::LuaRef current_ref, bookmark;
+  //! Stack containing references to all of the open tables
+  std::stack<luabridge::LuaRef> open_tables;
 };
 
 template <class T> T ReadScript::ReadData(const std::string& _key, T _default)
 {
-  luabridge::LuaRef ref = (current_ref)[_key];
+  luabridge::LuaRef ref = open_tables.top()[_key];
   if (ref.isNil())
+  {
+    errors.push(ScriptError { ScriptError::DATA_NOT_FOUND, "Data not found in table: " + _key });
     return _default;
+  }
 
   return ref.cast<T>();
 }
 
 template <class T> T ReadScript::ReadData(const int _key, T _default)
 {
-  luabridge::LuaRef ref = (current_ref)[_key];
+  luabridge::LuaRef ref = open_tables.top()[_key];
   if (ref.isNil())
+  {
+    errors.push(ScriptError { ScriptError::DATA_NOT_FOUND, "Data not found in table: " + _key });
     return _default;
+  }
 
   return ref.cast<T>();
 }

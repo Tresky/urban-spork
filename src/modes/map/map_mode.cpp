@@ -45,6 +45,12 @@ void MapMode::Update()
   MapRectangle char_rect(char_pos.x, char_pos.y,
                          char_pos.x + 32, char_pos.y + 32);
 
+  if (rpg_input::InputManager->NoMovementKeysPressed())
+  {
+    string direction = hero->GetDirection();
+    hero->SetCurrentAnimation("idle-" + direction);
+  }
+
   if (rpg_input::InputManager->IsUpKeyPressed())
   {
     sf::Vector2i check_tile(curr_tile.x, curr_tile.y - 1);
@@ -52,7 +58,11 @@ void MapMode::Update()
                            check_tile.x * 32 + 32, check_tile.y * 32 + 32);
     if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
         !MapRectangle::CheckIntersection(char_rect, tile_rect))
+    {
+      hero->SetCurrentAnimation("walk-north");
+      hero->SetDirection("north");
       hero->Move(0, -2);
+    }
   }
   if (rpg_input::InputManager->IsDownKeyPressed())
   {
@@ -61,7 +71,11 @@ void MapMode::Update()
                            check_tile.x * 32 + 32, check_tile.y * 32 + 32);
     if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
         !MapRectangle::CheckIntersection(char_rect, tile_rect))
+    {
+      hero->SetCurrentAnimation("walk-south");
+      hero->SetDirection("south");
       hero->Move(0, 2);
+    }
   }
   if (rpg_input::InputManager->IsLeftKeyPressed())
   {
@@ -70,7 +84,11 @@ void MapMode::Update()
                            check_tile.x * 32 + 32, check_tile.y * 32 + 32);
     if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
         !MapRectangle::CheckIntersection(char_rect, tile_rect))
+    {
+      hero->SetCurrentAnimation("walk-west");
+      hero->SetDirection("west");
       hero->Move(-2, 0);
+    }
   }
   if (rpg_input::InputManager->IsRightKeyPressed())
   {
@@ -79,7 +97,11 @@ void MapMode::Update()
                            check_tile.x * 32 + 32, check_tile.y * 32 + 32);
     if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
         !MapRectangle::CheckIntersection(char_rect, tile_rect))
+    {
+      hero->SetCurrentAnimation("walk-east");
+      hero->SetDirection("east");
       hero->Move(2, 0);
+    }
   }
 }
 

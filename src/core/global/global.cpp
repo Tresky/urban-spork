@@ -50,6 +50,7 @@ void GlobalEngine::NewGame()
     return;
   }
   global_characters[0]->SetCurrentAnimation("walk-south");
+  global_characters[0]->SetDirection("south");
   // int id = rpg_resource::ResourceManager->LoadImage("data/gchar/hero.png");
   // if (id < 0)
   // {

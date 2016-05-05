@@ -42,7 +42,6 @@ int main()
     InputManager->CaptureEvents();
     InputManager->CaptureInput();
 
-
     VideoManager->Clear();
 
     ModeManager->Draw();

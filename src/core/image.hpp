@@ -79,6 +79,8 @@ public:
    */
   void SetPosition(const unsigned int _x, const unsigned int _y);
 
+  sf::Vector2f GetPosition() const;
+
   /**
    * Draw the resource using the VideoEngine
    */
@@ -98,9 +100,8 @@ private:
 namespace private_video
 {
 
-class AnimationFrame
+struct AnimationFrame
 {
-public:
   // Time to show frame
   unsigned int frame_time;
 
@@ -121,15 +122,8 @@ public:
   explicit AnimatedImage(const unsigned int _width,
                          const unsigned int _height);
 
-  void AddFrame(const unsigned int _resource_id);
-
-  /**
-   * Loads the animation data from a Lua script denoted
-   * by the parameter name.
-   * @param  _filepath String of file location to Lua script
-   * @return           True if successful, false otherwise
-   */
-  bool LoadSpritesheetScript(const std::string &_filepath);
+  void AddFrame(const unsigned int _resource_id,
+                const unsigned int _frame_time);
 
   void SetPosition(const unsigned int _x, const unsigned int _y);
 
@@ -225,6 +219,8 @@ private:
 
   // Set to true to stop the animation; false to play
   bool finished;
+
+  sf::Vector2f position;
 
   // Vector containing the images for the frames
   std::vector<private_video::AnimationFrame*> frames;

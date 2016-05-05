@@ -9,10 +9,7 @@ namespace rpg_script
 
 ReadScript::ReadScript()
   : L(ScriptManager->GetLuaState())
-  , current_ref(L)
-  , bookmark(L)
-{ luaL_openlibs(L);
-}
+{}
 
 ReadScript::~ReadScript()
 {
@@ -21,66 +18,67 @@ ReadScript::~ReadScript()
 
 bool ReadScript::OpenFile(const std::string& _filename)
 {
-  cout << "Opening: " << _filename << endl;
-  // These return 0 on success, so the logic is backwards
-  if (luaL_loadfile(L, _filename.c_str()) || lua_pcall(L, 0, 0, 0))
+  if (IsOpen())
   {
-    PRINT_ERROR << "Script failed to load: " << _filename << endl;
+    errors.push(ScriptError { ScriptError::FILE_ALREADY_OPEN, "File already opened: " + filename });
     return false;
   }
 
+  // If the _filename is empty
+  if (_filename.empty())
+  {
+    errors.push(ScriptError { ScriptError::FILE_NOT_FOUND, "Script not found: " + _filename });
+    return false;
+  }
+
+  // TODO: Need to check the actual filesystem for a real file.
+
+  // These return 0 on success, so the logic is backwards
+  if (luaL_loadfile(L, _filename.c_str()) || lua_pcall(L, 0, 0, 0))
+  {
+    errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "Script failed to open: " + _filename });
+    return false;
+  }
+
+  is_opened = true;
   filename = _filename;
   return true;
 }
 
 void ReadScript::CloseFile()
 {
-  // if (L)
-  //   lua_close(L);
-
-  current_ref = Nil();
-}
-
-void ReadScript::BookmarkCurrentTable()
-{
-  bookmark = current_ref;
-}
-
-void ReadScript::LoadBookmark()
-{
-  current_ref = bookmark;
+  is_opened = false;
+  filename = "";
 }
 
 bool ReadScript::OpenTable(const std::string& _table_name)
 {
-  if (!L)
+  if (!IsOpen())
   {
-    PRINT_ERROR << "No Lua script open. Call OpenFile() first." << endl;
+    errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "No script open. Call OpenFile() first." });
     return false;
   }
 
-  if (current_ref.isNil())
+  // No tables opened, so we need to open globally
+  if (open_tables.empty())
   {
-    current_ref = getGlobal(L, _table_name.c_str());
-    if (current_ref.isNil())
+    LuaRef temp = getGlobal(L, _table_name.c_str());
+    if (temp.isNil())
     {
-      PRINT_WARNING << "Unable to open table: " << _table_name << endl;
+      errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Table not found in script: " + _table_name });
       return false;
     }
+    open_tables.push(temp);
   }
   else
   {
-    LuaRef temp = current_ref[_table_name];
+    LuaRef temp = open_tables.top()[_table_name];
     if (temp.isTable())
-      current_ref = temp;
+      open_tables.push(temp);
     else
     {
-      current_ref = getGlobal(L, _table_name.c_str());
-      if (current_ref.isNil())
-      {
-        PRINT_WARNING << "Unable to open table: " << _table_name << endl;
-        return false;
-      }
+      errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Table not found in script: " + _table_name });
+      return false;
     }
   }
   return true;
@@ -88,29 +86,39 @@ bool ReadScript::OpenTable(const std::string& _table_name)
 
 bool ReadScript::OpenTableIntegers(const int _key)
 {
-  if (!L)
+  ScriptError err;
+
+  if (!IsOpen())
   {
-    PRINT_ERROR << "No Lua script open. Call OpenFile() first." << endl;
+    errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "No script open. Call OpenFile() first." });
     return false;
   }
 
-  if (current_ref.isNil())
+  // No tables opened, so we need to open globally
+  if (open_tables.empty())
   {
-    PRINT_WARNING << "Unable to open table (no base table open): " << _key << endl;
+    errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Unable to open integer table globally: " + _key });
     return false;
   }
   else
   {
-    LuaRef temp = current_ref[_key];
-    cout << temp.type() << endl;
-    if (temp.isNil())
+    LuaRef temp = open_tables.top()[_key];
+    if (temp.isTable())
+      open_tables.push(temp);
+    else
     {
+      errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Table not found in script: " + _key });
       PRINT_WARNING << "Unable to open table (doesn't exist): " << _key << endl;
       return false;
     }
-    current_ref = temp;
   }
   return true;
+}
+
+void ReadScript::CloseTable()
+{
+  if (!open_tables.empty())
+    open_tables.pop();
 }
 
 } // Script namespace

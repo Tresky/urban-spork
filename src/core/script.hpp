@@ -32,6 +32,22 @@ enum ScriptTypes
   SCRIPT_TYPE_TILESET = 3
 };
 
+struct ScriptError
+{
+  enum ErrorType
+  {
+    NO_ERROR = -1,
+    FILE_NOT_FOUND = 0,
+    FILE_NOT_OPENED = 1,
+    FILE_ALREADY_OPEN = 2,
+    DATA_NOT_FOUND = 3,
+    DATA_NOT_RETRIEVED = 4,
+    TABLE_NOT_FOUND = 5
+  } type;
+
+  std::string message;
+};
+
 // Singleton object
 class ScriptEngine;
 extern ScriptEngine* ScriptManager;
@@ -51,7 +67,9 @@ public:
   /**
    * Constructor
    */
-  Script() : is_opened(false) {}
+  Script()
+    : is_opened(false)
+  {}
 
   /**
    * Destructor
@@ -80,12 +98,37 @@ public:
     return filename;
   }
 
+  bool HasError() const
+  {
+    if (!errors.empty())
+      return true;
+    return false;
+  }
+
+  ScriptError GetNextError()
+  {
+    ScriptError error = errors.front();
+    errors.pop();
+    return error;
+  }
+
+  void PrintErrors()
+  {
+    while (!errors.empty())
+    {
+      ScriptError err = GetNextError();
+      PRINT_WARNING << "ScriptError[" << err.type << "]: " << err.message << endl;
+    }
+  }
+
 protected:
   lua_State *L;
 
   std::string filename;
 
   bool is_opened;
+
+  std::queue<ScriptError> errors;
 };
 
 /**

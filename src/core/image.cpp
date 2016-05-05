@@ -83,6 +83,11 @@ void Image::SetPosition(const unsigned int _x, const unsigned int _y)
   sprite.setPosition(position);
 }
 
+sf::Vector2f Image::GetPosition() const
+{
+  return position;
+}
+
 void Image::Draw()
 {
   VideoManager->DrawSprite(sprite);
@@ -96,42 +101,20 @@ AnimatedImage::AnimatedImage(const unsigned int _width,
   , loop_counter(0)
   , frame_delta(1)
   , finished(false)
+  , position(0.f, 0.f)
 {}
 
-void AnimatedImage::AddFrame(const unsigned int _resource_id)
+void AnimatedImage::AddFrame(const unsigned int _resource_id,
+                             const unsigned int _frame_time)
 {
   frames.push_back(new private_video::AnimationFrame());
   frames.back()->resource_id = _resource_id;
-  frames.back()->frame_time = 200;
-}
-
-bool AnimatedImage::LoadSpritesheetScript(const std::string &_filepath)
-{
-
-  // ReadScript sprite_script;
-  // if (!sprite_script.OpenFile(_filepath))
-  // {
-  //   PRINT_ERROR << "Failed to open spritesheet script: " << _filepath << endl;
-  //   return false;
-  // }
-  //
-  // if (!sprite_script.OpenTable("animations"))
-  // {
-  //   PRINT_ERROR << "Table doesn't exist in script: animations" << endl;
-  //   return false;
-  // }
-  //
-  // string filepath = sprite_script.ReadData<std::string>("filepath", "");
-  // cout << "FilePath : " << filepath << endl;
-  //
-  // return true;
+  frames.back()->frame_time = _frame_time;
 }
 
 void AnimatedImage::SetPosition(const unsigned int _x, const unsigned int _y)
 {
-  for (auto frame : frames)
-  ResourceManager->GetImage(frame->resource_id)
-                 ->SetPosition(_x, _y);
+  position = sf::Vector2f(_x, _y);
 }
 
 void AnimatedImage::Draw()
@@ -142,7 +125,12 @@ void AnimatedImage::Draw()
     return;
   }
 
-  ResourceManager->DrawImage(frames[current_frame]->resource_id);
+  // Check if the current frame is in the right position
+  Image* image = ResourceManager->GetImage(frames[current_frame]->resource_id);
+  if (image->GetPosition() != position)
+    image->SetPosition(position.x, position.y);
+
+  image->Draw();
 }
 
 void AnimatedImage::Reset()
@@ -162,7 +150,7 @@ void AnimatedImage::Update()
 
   // Get the elapsed time from the SystemManager
   unsigned int elapsed_time = rpg_system::SystemManager->GetUpdateTime();
-  
+
   // If frame_time is equal to zero, it's a terminating frame.
   if (frames[current_frame]->frame_time == 0)
   {

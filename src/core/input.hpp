@@ -89,6 +89,14 @@ public:
     return right_key_state;
   }
 
+  bool NoMovementKeysPressed()
+  {
+    return !(right_key_state &&
+             left_key_state &&
+             up_key_state &&
+             down_key_state);
+  }
+
 private:
   /**
    * Constructor

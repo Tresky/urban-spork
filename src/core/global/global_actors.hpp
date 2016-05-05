@@ -15,6 +15,7 @@ public:
   GlobalCharacter()
     : resource_id(-1)
     , current_animation("")
+    , direction("")
   {}
 
   ~GlobalCharacter()
@@ -25,6 +26,10 @@ public:
   bool LoadAnimations(const std::string& _filepath);
 
   void SetCurrentAnimation(const std::string& _key);
+
+  void SetDirection(const std::string& _direction);
+
+  std::string GetDirection();
 
   void SetMapImage(const unsigned int _id);
 
@@ -42,6 +47,8 @@ public:
 
 private:
   int resource_id;
+
+  std::string direction;
 
   sf::Vector2f position;
 
