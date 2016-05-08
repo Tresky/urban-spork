@@ -94,6 +94,8 @@ private:
 
   std::vector< std::vector<int> > collision_grid;
 
+  //private_map_mode::MapSprite* visible_hero;
+
   std::map<unsigned int, MapObject*> all_objects;
 
   // std::vector<MapObject*> ground_objects;

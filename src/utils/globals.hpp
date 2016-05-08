@@ -59,6 +59,7 @@
   using std::to_string;
 #include <map>
   using std::map;
+#include <cmath>
 
 // SFML Libraries
 #include <SFML/System.hpp>

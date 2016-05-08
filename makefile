@@ -20,7 +20,7 @@ _GLOB_OBJ = global.o global_actors.o
 GLOB_OBJ = $(patsubst %, $(ODIR)/%, $(_GLOB_OBJ))
 
 # Mode Objects
-_MOD_OBJ = map_utils.o map_mode.o map_tiles.o map_objects.o
+_MOD_OBJ = map_utils.o map_mode.o map_tiles.o map_objects.o map_sprites.o map_camera.o
 MOD_OBJ = $(patsubst %, $(ODIR)/%, $(_MOD_OBJ))
 
 
@@ -35,7 +35,7 @@ _GLOB_DEP = global.hpp global_actors.hpp
 GLOB_DEP = $(patsubst %, ./src/core/global/%, $(_GLOB_DEP))
 
 # Mode Headers
-_MOD_DEP = map_utils.hpp map_mode.hpp map_tiles.hpp map_objects.hpp
+_MOD_DEP = map_utils.hpp map_mode.hpp map_tiles.hpp map_objects.hpp map_sprites.hpp map_camera.hpp
 MOD_DEP = $(patsubst %, ./src/modes/map/%, $(_MOD_DEP))
 
 

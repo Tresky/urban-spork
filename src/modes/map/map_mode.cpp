@@ -8,11 +8,11 @@
 #include "../../core/global/global_actors.hpp"
 #include "map_tiles.hpp"
 #include "map_objects.hpp"
+#include "map_sprites.hpp"
+#include "map_camera.hpp"
 #include "map_utils.hpp"
   using rpg_map_mode::private_map_mode::MapRectangle;
-
-//#include "../../utils/selene.hpp"
-//using namespace sel;
+  using rpg_map_mode::private_map_mode::MapLayerType;
 
 namespace rpg_map_mode
 {
@@ -22,29 +22,43 @@ bool MAP_MODE_DEBUG = true;
 MapMode::MapMode(const string& _lua_filepath)
   : GameMode()
   , lua_filepath(_lua_filepath)
+  , camera(nullptr)
   , tile_supervisor(nullptr)
+  , temp_sprite(nullptr)
 {
   IF_PRINT_DEBUG(MAP_MODE_DEBUG) << "MapMode constructor called" << endl;
 
   tile_supervisor = new private_map_mode::TileSupervisor();
+  camera = new private_map_mode::Camera(sf::Vector2i(32, 32));
+
+  camera->SetCenterPosition(128, 128);
 
   if (!LoadMap())
     PRINT_ERROR << "Failed to load Lua tilemap: " << lua_filepath << endl;
 }
 
+MapMode::~MapMode()
+{
+  delete camera; camera = nullptr;
+  delete tile_supervisor; tile_supervisor = nullptr;
+}
+
 void MapMode::Update()
 {
-  rpg_global::GlobalManager->Update();
-
   rpg_global::GlobalCharacter* hero = rpg_global::GlobalManager->GetHero();
   if (!hero)
     return;
 
-  sf::Vector2f char_pos = hero->GetPosition();
+  sf::Vector2f char_pos = camera->GetCenterPosition() - sf::Vector2f(16, 16);
+  sf::Vector2i position_delta = sf::Vector2i(0, 0);
+
+  rpg_global::GlobalManager->Update();
+
   sf::Vector2i curr_tile(char_pos.x / 32, char_pos.y / 32);
   MapRectangle char_rect(char_pos.x, char_pos.y,
                          char_pos.x + 32, char_pos.y + 32);
 
+  // Set Idle Animations
   if (rpg_input::InputManager->NoMovementKeysPressed())
   {
     string direction = hero->GetDirection();
@@ -61,7 +75,7 @@ void MapMode::Update()
     {
       hero->SetCurrentAnimation("walk-north");
       hero->SetDirection("north");
-      hero->Move(0, -2);
+      position_delta.y -= 5;
     }
   }
   if (rpg_input::InputManager->IsDownKeyPressed())
@@ -74,7 +88,7 @@ void MapMode::Update()
     {
       hero->SetCurrentAnimation("walk-south");
       hero->SetDirection("south");
-      hero->Move(0, 2);
+      position_delta.y += 5;
     }
   }
   if (rpg_input::InputManager->IsLeftKeyPressed())
@@ -87,7 +101,7 @@ void MapMode::Update()
     {
       hero->SetCurrentAnimation("walk-west");
       hero->SetDirection("west");
-      hero->Move(-2, 0);
+      position_delta.x -= 5;
     }
   }
   if (rpg_input::InputManager->IsRightKeyPressed())
@@ -95,19 +109,28 @@ void MapMode::Update()
     sf::Vector2i check_tile(curr_tile.x + 1, curr_tile.y);
     MapRectangle tile_rect(check_tile.x * 32, check_tile.y * 32,
                            check_tile.x * 32 + 32, check_tile.y * 32 + 32);
+
     if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
         !MapRectangle::CheckIntersection(char_rect, tile_rect))
     {
       hero->SetCurrentAnimation("walk-east");
       hero->SetDirection("east");
-      hero->Move(2, 0);
+      position_delta.x += 5;
     }
   }
+
+  camera->SetCenterPosition(char_pos.x + position_delta.x + 16, char_pos.y + position_delta.y + 16);
+  camera->Update();
 }
 
 void MapMode::Draw()
 {
-  tile_supervisor->DrawLayers();
+  tile_supervisor->DrawLayers(camera->GetCameraBounds(), camera->GetTileOffset(), MapLayerType::GROUND);
+
+  rpg_global::GlobalManager->DrawGlobalCharacters();
+
+  tile_supervisor->DrawLayers(camera->GetCameraBounds(), camera->GetTileOffset(), MapLayerType::WALL);
+  tile_supervisor->DrawLayers(camera->GetCameraBounds(), camera->GetTileOffset(), MapLayerType::SKY);
 }
 
 void MapMode::Reset()
@@ -121,21 +144,8 @@ bool MapMode::LoadMap()
 
   rpg_script::ScriptManager->LoadTilemap(lua_filepath, this);
 
-  // State state(true);
-  // if (!state.Load(lua_filepath))
-  // {
-  //   PRINT_ERROR << "Failed to open load Lua file: " << lua_filepath << endl;
-  //   return false;
-  // }
-  //
-  // auto map_data = state["map_data"];
-  //
-  //
-  // if (!tile_supervisor->Load(map_data))
-  // {
-  //   PRINT_ERROR << "Failed to load tiles in TileSupervisor" << endl;
-  //   return false;
-  // }
+  // TODO: Rewrite tilemap loading code in here. Abstract it away from the ScriptManager.
+  // It doesn't make sense in it's current place.
 
   return true;
 }

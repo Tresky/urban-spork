@@ -11,9 +11,13 @@ namespace rpg_map_mode
 {
 
 namespace private_map_mode
-{ class TileSupervisor;
-  class ObjectSupervisor;
-  class MapFrame; }
+{
+class MapSprite;
+class TileSupervisor;
+class ObjectSupervisor;
+class MapFrame;
+class Camera;
+}
 
 extern bool MAP_MODE_DEBUG;
 
@@ -32,8 +36,12 @@ public:
   /**
    * Destructor
    */
-  ~MapMode()
-  {}
+  ~MapMode();
+
+  // void SetCamera(private_map_mode::VirtualSprite* _sprite)
+  // {
+  //   camera = _sprite;
+  // }
 
   /**
    * Update the MapMode object.
@@ -66,8 +74,7 @@ private:
   // File path to the Lua file with the map data
   std::string lua_filepath;
 
-  // Vector containing the map layers for the mode
-  // std::vector<private_map_mode::MapLayer> layers;
+  private_map_mode::Camera* camera;
 
   //
   private_map_mode::TileSupervisor* tile_supervisor;
@@ -76,7 +83,10 @@ private:
   private_map_mode::ObjectSupervisor* object_supervisor;
 
   //
-  private_map_mode::MapFrame map_frame;
+  //private_map_mode::MapFrame map_frame;
+  sf::IntRect frame_bounds;
+
+  private_map_mode::MapSprite* temp_sprite;
 };
 
 }

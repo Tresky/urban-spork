@@ -124,28 +124,33 @@ TileSupervisor::~TileSupervisor()
 //   return true;
 // }
 
-void TileSupervisor::DrawLayers()
+void TileSupervisor::DrawLayers(const sf::IntRect _frame,
+                                const sf::Vector2i _offset,
+                                const MapLayerType& _layer_type)
 {
   for (int l = 0; l < layers.size(); ++l)
   {
-    if (layers[l - 1].layer_type == MapLayerType::GROUND &&
-        layers[l].layer_type != MapLayerType::GROUND)
-        rpg_global::GlobalManager->DrawGlobalCharacters();
+    if (layers[l].layer_type != _layer_type)
+      continue;
 
-    for (int row = 0; row < layers[l].tiles.size(); ++row)
-      for (int col = 0; col < layers[l].tiles[row].size(); ++col)
+    for (int y = 0, row = _frame.top; y < _frame.height; ++y, ++row)
+      for (int x = 0, col = _frame.left; x < _frame.width; ++x, ++col)
       {
+        if (row >= layers[l].tiles.size() || row < 0 ||
+            col >= layers[l].tiles[row].size() || col < 0)
+          continue;
+
         int tile_gid = layers[l].tiles[row][col];
 
         if (tile_gid == -1)
           continue;
 
-        sf::Vector2f pos(col * 32, row * 32);
+        sf::Vector2f pos(x * 32 - _offset.x, y * 32 - _offset.y);
         rpg_resource::ResourceManager
-          ->GetImage(tile_ids[tile_gid])
-          ->SetPosition(pos.x, pos.y);
-        rpg_resource::ResourceManager->DrawImage(tile_ids[tile_gid]);
+            ->GetImage(tile_ids[tile_gid])
+            ->SetPosition(pos.x, pos.y);
 
+        rpg_resource::ResourceManager->DrawImage(tile_ids[tile_gid]);
       }
   }
 }

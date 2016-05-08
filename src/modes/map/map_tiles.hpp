@@ -74,7 +74,7 @@ public:
   }
 
 
-  void DrawLayers();
+  void DrawLayers(const sf::IntRect _frame, const sf::Vector2i _offset, const MapLayerType& _layer_type);
 
 private:
   std::vector<MapLayer> layers;

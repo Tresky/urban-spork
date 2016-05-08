@@ -51,23 +51,9 @@ void GlobalEngine::NewGame()
   }
   global_characters[0]->SetCurrentAnimation("walk-south");
   global_characters[0]->SetDirection("south");
-  // int id = rpg_resource::ResourceManager->LoadImage("data/gchar/hero.png");
-  // if (id < 0)
-  // {
-  //   PRINT_ERROR << "Failed to load character" << endl;
-  //   delete global_characters[0];
-  //   global_characters[0] = nullptr;
-  //   return;
-  // }
-  //
-  // global_characters[0]->SetMapImage(id);
-  global_characters[0]->SetPosition(32, 32);
 
-  // Let the input manager about the hero
-  //rpg_input::InputManager->CheckGlobalForHero();
-
-  // This will change later
-  //global_character[0] = new GlobalCharacter("path/to/sprite");
+  global_characters[0]->SetPosition(rpg_vidoe::VideoManager->GetScreenWidth() / 2.f - 16,
+                                    rpg_video::VideoManager->GetScreenHeight() / 2.f - 16);
 }
 
 void GlobalEngine::Update()

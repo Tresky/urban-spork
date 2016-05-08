@@ -16,3 +16,21 @@ Relationship between ScriptManager and ResourceManager
    - All resources are accessible via the object id (int or string?)
 
  - Need to load objects and collision data from Script
+
+ ### Milestones
+ - ~Collision detection
+ - ~ScriptRead class~
+ - ~Character animations~
+ - Redo collision detection
+ - Map functional
+ - Basic fighting w/ enemies
+ - Basic UI (health, mp, etc)
+
+Notes:
+ - Detach position from GlobalCharacter. Camera should be independent from Character.
+ - Store PArty member in GlobalEngine
+
+ ObjectSupervisor contain pointer to MapSprite for character
+ MapMode contains VirtualSprite for camera
+
+ In Lua set camera to Sprite created in Lua. For pre-tests, we can abstract the Lua functions into test C++.
