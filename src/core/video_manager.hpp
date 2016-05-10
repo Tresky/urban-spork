@@ -96,6 +96,16 @@ public:
 
   void Close();
 
+  void DrawLine(const int _x1, const int _y1,
+                const int _x2, const int _y2,
+                const int _width, const sf::Color& _color);
+
+  void DrawGrid(const float left, const float top,
+                const float right, const float bottom,
+                const float width_cell_horizontal,
+                const float width_cell_vertical,
+                const unsigned width_line, const sf::Color& color);
+
 private:
   VideoEngine();
 

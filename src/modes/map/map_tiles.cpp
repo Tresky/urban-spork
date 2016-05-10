@@ -124,17 +124,22 @@ TileSupervisor::~TileSupervisor()
 //   return true;
 // }
 
-void TileSupervisor::DrawLayers(const sf::IntRect _frame,
-                                const sf::Vector2i _offset,
-                                const MapLayerType& _layer_type)
+void TileSupervisor::DrawLayers(const MapFrame& _frame, const MapLayerType& _layer_type)
 {
+  int tile_y_end = _frame.tile_y_start + _frame.num_draw_y_axis;
+  int tile_x_end = _frame.tile_x_start + _frame.num_draw_x_axis;
+
+  cout << _frame.num_draw_x_axis << endl;
+
   for (int l = 0; l < layers.size(); ++l)
   {
     if (layers[l].layer_type != _layer_type)
       continue;
 
-    for (int y = 0, row = _frame.top; y < _frame.height; ++y, ++row)
-      for (int x = 0, col = _frame.left; x < _frame.width; ++x, ++col)
+    //for (int y = 0, row = _frame.top; y < _frame.height; ++y, ++row)
+      //for (int x = 0, col = _frame.left; x < _frame.width; ++x, ++col)
+    for (int y = 0, row = _frame.tile_y_start; y < tile_y_end; ++y, ++row)
+      for (int x = 0, col = _frame.tile_x_start; x < tile_x_end; ++x, ++col)
       {
         if (row >= layers[l].tiles.size() || row < 0 ||
             col >= layers[l].tiles[row].size() || col < 0)
@@ -145,7 +150,7 @@ void TileSupervisor::DrawLayers(const sf::IntRect _frame,
         if (tile_gid == -1)
           continue;
 
-        sf::Vector2f pos(x * 32 - _offset.x, y * 32 - _offset.y);
+        sf::Vector2f pos(x * 32 - _frame.tile_x_offset, y * 32 - _frame.tile_y_offset);
         rpg_resource::ResourceManager
             ->GetImage(tile_ids[tile_gid])
             ->SetPosition(pos.x, pos.y);

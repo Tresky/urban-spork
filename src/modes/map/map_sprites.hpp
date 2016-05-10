@@ -3,8 +3,24 @@
 
 #include "map_objects.hpp"
 
+namespace rpg_video
+{ class AnimatedImage; }
+
 namespace rpg_map_mode
 {
+
+enum Direction
+{
+  DIRECTION_INVALID = 0,
+  DIRECTION_NORTH = 1,
+  DIRECTION_NORTHWEST = 2,
+  DIRECTION_NORTHEAST = 3,
+  DIRECTION_SOUTH = 4,
+  DIRECTION_SOUTHWEST = 5,
+  DIRECTION_SOUTHEAST = 6,
+  DIRECTION_EAST = 7,
+  DIRECTION_WEST = 8
+};
 
 namespace private_map_mode
 {
@@ -12,23 +28,73 @@ namespace private_map_mode
 class VirtualSprite: public MapObject
 {
 public:
-  VirtualSprite(MapObjectDrawLayer _layer) : MapObject(_layer) {}
+  VirtualSprite(MapObjectDrawLayer _layer);
 
   ~VirtualSprite() {}
 
-  virtual void Update() {}
+  virtual void Update();
 
   virtual void Draw() {}
 
-protected:
+  void SetDirection(const Direction _direction);
 
+  const Direction GetDirection()
+  {
+    return direction;
+  }
+
+  float CalculateDistanceMoved();
+
+  void SetMoving(bool _moving)
+  {
+    moving = _moving;
+  }
+
+  bool IsMoving()
+  {
+    return moving;
+  }
+
+  bool HasMoved()
+  {
+    return has_moved;
+  }
+
+protected:
+  void SetNextPosition();
+
+  float movement_speed;
+
+  bool moving;
+
+  bool has_moved;
+
+  Direction direction;
 };
 
 class MapSprite: public VirtualSprite
 {
 public:
-  MapSprite(MapObjectDrawLayer _layer) : VirtualSprite(_layer) {}
+  MapSprite(MapObjectDrawLayer _layer);
+
+  ~MapSprite();
+
+  bool LoadAnimations(const std::string& _filepath);
+
+  void SetCurrentAnimation(const std::string& _current_animation)
+  {
+    current_animation = _current_animation;
+  }
+
+  virtual void Update();
+
+  virtual void Draw();
+
 private:
+
+  std::string current_animation;
+
+  std::map<std::string, rpg_video::AnimatedImage*> animations;
 };
 
 } // Private Map Mode namespace

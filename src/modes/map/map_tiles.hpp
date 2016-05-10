@@ -1,8 +1,7 @@
 #ifndef MAP_TILES_HPP
 #define MAP_TILES_HPP
 
-namespace rpg_script
-{ class ScriptEngine; }
+#include "map_utils.hpp"
 
 namespace rpg_map_mode
 {
@@ -50,7 +49,7 @@ public:
 class TileSupervisor
 {
   //friend class rpg_map_mode::MapMode;
-  friend class rpg_script::ScriptEngine;
+  friend class rpg_map_mode::MapMode;
 public:
   /**
    * Default Constructor
@@ -66,15 +65,19 @@ public:
 
   //bool Load(sel::Selector& _map_data);
 
-  //void Update(); // For updating animated tiles
+  void Update(){} // For updating animated tiles
 
   bool IsTileWalkable(const signed int _x, const signed int _y)
   {
     return !collision_layer.tiles[_y][_x];
   }
 
+  // int GetWidthHeight()
+  // {
+  //   return layers.begin()->size();
+  // }
 
-  void DrawLayers(const sf::IntRect _frame, const sf::Vector2i _offset, const MapLayerType& _layer_type);
+  void DrawLayers(const MapFrame& _frame, const MapLayerType& _layer_type);
 
 private:
   std::vector<MapLayer> layers;

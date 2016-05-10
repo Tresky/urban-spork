@@ -97,7 +97,7 @@ bool ReadScript::OpenTableIntegers(const int _key)
   // No tables opened, so we need to open globally
   if (open_tables.empty())
   {
-    errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Unable to open integer table globally: " + _key });
+    errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Unable to open integer table globally: " + std::to_string(_key) });
     return false;
   }
   else
@@ -107,7 +107,7 @@ bool ReadScript::OpenTableIntegers(const int _key)
       open_tables.push(temp);
     else
     {
-      errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Table not found in script: " + _key });
+      errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Table not found in script: " + std::to_string(_key) });
       PRINT_WARNING << "Unable to open table (doesn't exist): " << _key << endl;
       return false;
     }

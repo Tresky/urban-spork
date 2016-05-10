@@ -156,6 +156,21 @@ public:
     return (duration - time_expired);
   }
 
+  float PercentComplete() const
+  {
+    switch(timer_state) {
+    case TIMER_INITIAL:
+        return 0.0f;
+    case TIMER_RUNNING:
+    case TIMER_PAUSED:
+        return static_cast<float>(time_expired) / static_cast<float>(duration);
+    case TIMER_FINISHED:
+        return 1.0f;
+    default:
+        return 0.0f;
+    }
+  }
+
   /**
    * Set the duration of the timer.
    * @param _duration Unsigned integer to set the duration to (milliseconds)

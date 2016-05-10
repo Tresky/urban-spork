@@ -6,11 +6,9 @@
 
 #include "map_utils.hpp"
 
-namespace rpg_script
-{ class ScriptEngine; }
-
 namespace rpg_map_mode
 {
+class MapMode;
 
 enum MapObjectDrawLayer
 {
@@ -23,6 +21,7 @@ enum MapObjectDrawLayer
 
 namespace private_map_mode
 {
+class MapSprite;
 
 class MapObject
 {
@@ -32,7 +31,16 @@ public:
   virtual ~MapObject()
   {}
 
+  bool ShouldDraw();
+
   MapRectangle GetGridCollisionRectangle() const;
+
+  MapRectangle GetGridCollisionRectangle(float tile_x, float tile_y) const;
+
+  MapObjectDrawLayer GetObjectDrawLayer() const
+  {
+    return draw_layer;
+  }
 
   void SetPosition(const float _x, const float _y);
 
@@ -65,11 +73,16 @@ protected:
 
 class ObjectSupervisor
 {
-  friend class rpg_script::ScriptEngine;
+  friend class rpg_map_mode::MapMode;
 public:
   ObjectSupervisor();
 
   ~ObjectSupervisor();
+
+  void SetPartyMemberSprite(private_map_mode::MapSprite* _visible_hero)
+  {
+    visible_hero = _visible_hero;
+  }
 
   unsigned int GenerateObjectId();
 
@@ -83,6 +96,8 @@ public:
 
   bool IsMapCollision(const unsigned int _x, const unsigned int _y);
 
+  CollisionType DetectCollision(MapObject* _object, const float _x, const float _y, MapObject* _collision_object);
+
   void Update();
 
   void DrawObjects();
@@ -94,7 +109,7 @@ private:
 
   std::vector< std::vector<int> > collision_grid;
 
-  //private_map_mode::MapSprite* visible_hero;
+  private_map_mode::MapSprite* visible_hero;
 
   std::map<unsigned int, MapObject*> all_objects;
 

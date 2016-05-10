@@ -80,4 +80,42 @@ void VideoEngine::DrawFPS()
   window->draw(fps_text);
 }
 
+void VideoEngine::DrawLine(const int _x1, const int _y1,
+                           const int _x2, const int _y2,
+                           const int _width, const sf::Color& _color)
+{
+  sf::VertexArray line(sf::Lines, 2);
+  line[0].position = sf::Vector2f(_x1, _y1);
+  line[1].position = sf::Vector2f(_x2, _y2);
+
+  window->draw(line);
+  // sf::RectangleShape line;
+  // line.setPosition(_x1, _y1);
+  // line.set
+  // line.setLineThickness(_width);
+}
+
+void VideoEngine::DrawGrid(const float _left, const float _top,
+                           const float _right, const float _bottom,
+                           const float _width_cell_horizontal,
+                           const float _width_cell_vertical,
+                           const unsigned _width_line, const sf::Color& _color)
+{
+  // #include <cassert>
+  // using std::assert;
+  // assert(_right > _left);
+  // assert(_bottom > _top);
+  // assert(_width_cell_horizontal > 0.0f);
+  // assert(_width_cell_vertical > 0.0f);
+  // assert(_width_line > 0);
+
+  // Draw the grid's vertical lines.
+  for (float i = _left; i <= _right; i += _width_cell_horizontal)
+      DrawLine(i, _top, i, _bottom, _width_line, _color);
+
+  // Draw the grid's horizontal lines.
+  for (float j = _top; j <= _bottom; j += _width_cell_vertical)
+      DrawLine(_left, j, _right, j, _width_line, _color);
+}
+
 }

@@ -14,8 +14,8 @@ class GlobalCharacter
 public:
   GlobalCharacter()
     : resource_id(-1)
-    , current_animation("")
     , direction("")
+    , current_animation("")
   {}
 
   ~GlobalCharacter()

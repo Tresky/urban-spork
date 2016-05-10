@@ -3,6 +3,8 @@
 
 #include "script.hpp"
 
+#include <stack>
+
 namespace rpg_script
 {
 
@@ -78,7 +80,7 @@ template <class T> T ReadScript::ReadData(const int _key, T _default)
   luabridge::LuaRef ref = open_tables.top()[_key];
   if (ref.isNil())
   {
-    errors.push(ScriptError { ScriptError::DATA_NOT_FOUND, "Data not found in table: " + _key });
+    errors.push(ScriptError { ScriptError::DATA_NOT_FOUND, "Data not found in table: " + std::to_string(_key) });
     return _default;
   }
 

@@ -18,6 +18,41 @@ namespace rpg_map_mode
 namespace private_map_mode
 {
 
+  /** \name Screen Coordiante System Constants
+  *** \brief Represents the size of the visible screen in map tiles and the collision grid
+  *** Every map tile is 32x32 pixels, and every collision grid element is one quarter of that
+  *** area (16x16). Thus the number of collision grid elements that compose the screen are
+  *** four times the number of tiles that are visible on the screen. This also means the number
+  *** of rows and columns of grid elements that encompass the screen are twice that of the
+  *** number of rows and columns of tiles.
+  **/
+  //@{
+
+
+  const float SCREEN_GRID_X_LENGTH = 64.0f; // was 32 for zoom ratio 2.0f;
+  const float SCREEN_GRID_Y_LENGTH = 48.0f;
+  const float HALF_SCREEN_GRID_X_LENGTH = SCREEN_GRID_X_LENGTH / 2;
+  const float HALF_SCREEN_GRID_Y_LENGTH = SCREEN_GRID_Y_LENGTH / 2;
+
+  const int TILES_ON_X_AXIS = (int)SCREEN_GRID_X_LENGTH / 2; // Number of tile columns that fit on the screen
+  const int TILES_ON_Y_AXIS = (int)SCREEN_GRID_Y_LENGTH / 2; // Number of tile rows that fit on the screen
+  const int HALF_TILES_ON_X_AXIS = TILES_ON_X_AXIS / 2;
+  const int HALF_TILES_ON_Y_AXIS = TILES_ON_Y_AXIS / 2;
+
+  // Length of a grid element in pixels (taken from the grid to screen width ratio)
+  //const uint16_t GRID_LENGTH = vt_video::VIDEO_STANDARD_RES_WIDTH / SCREEN_GRID_X_LENGTH;
+  // Length of a tile in pixels
+  //const uint16_t TILE_LENGTH = GRID_LENGTH * 2;
+  //@}
+
+  enum CollisionType {
+      NO_COLLISION = 0,
+      CHARACTER_COLLISION = 1,
+      ENEMY_COLLISION = 2,
+      WALL_COLLISION = 3
+  };
+
+
 /**
  * \class MapRectangle
  * \brief Very small class to represent a rectangular area of a map.
@@ -42,8 +77,8 @@ public:
    */
   MapRectangle()
     : left(0.f)
-    , right(0.f)
     , top(0.f)
+    , right(0.f)
     , bottom(0.f)
   {}
 
@@ -55,22 +90,22 @@ public:
    * \param _right  Float defining the right side of the rectangle
    * \param _bottom Float defining the bottom side of the rectangle
    */
-  MapRectangle(const float _left, const float _top,
-               const float _right, const float _bottom)
+  MapRectangle(const int _left, const int _top,
+               const int _right, const int _bottom)
     : left(_left)
-    , right(_right)
     , top(_top)
+    , right(_right)
     , bottom(_bottom)
   {}
 
   //! X-value of the left of the rectangle
-  float left;
+  int left;
   //! Y-value of the top of the rectangle
-  float top;
+  int top;
   //! X-value of the right of the rectangle
-  float right;
+  int right;
   //! Y-value of the bottom of the rectangle
-  float bottom;
+  int bottom;
 
   /**
    * Static method to check for intersection between two objects
@@ -110,9 +145,9 @@ class MapFrame
 {
 public:
   //! X index of the top-left tile to draw
-  unsigned int tile_x_start;
+  int tile_x_start;
   //! Y index of the top-left tile to draw
-  unsigned int tile_y_start;
+  int tile_y_start;
 
   //! Number of pixels on the x-axis that we are from being positioned perfectly on a tile
   float tile_x_offset;

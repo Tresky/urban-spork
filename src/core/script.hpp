@@ -112,14 +112,7 @@ public:
     return error;
   }
 
-  void PrintErrors()
-  {
-    while (!errors.empty())
-    {
-      ScriptError err = GetNextError();
-      PRINT_WARNING << "ScriptError[" << err.type << "]: " << err.message << endl;
-    }
-  }
+  void PrintErrors();
 
 protected:
   lua_State *L;
