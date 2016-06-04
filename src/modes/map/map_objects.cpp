@@ -50,13 +50,13 @@ MapRectangle MapObject::GetGridCollisionRectangle(float tile_x, float tile_y) co
   return rect;
 }
 
-void MapObject::SetPosition(const float _x, const float _y)
+void MapObject::SetPosition(const int _x, const int _y)
 {
   tile_position.x = _x;
   tile_position.y = _y;
 }
 
-void MapObject::Move(const float _x, const float _y)
+void MapObject::Move(const int _x, const int _y)
 {
   SetPosition(tile_position.x + _x, tile_position.y + _y);
 }
@@ -100,7 +100,7 @@ ObjectSupervisor::~ObjectSupervisor()
 
 unsigned int ObjectSupervisor::GenerateObjectId()
 {
-  cout << "ID_COUNT: " << id_counter << endl;
+  //cout << "ID_COUNT: " << id_counter << endl;
   int temp = 0;
   if (reusable_ids.empty())
     temp = id_counter++;

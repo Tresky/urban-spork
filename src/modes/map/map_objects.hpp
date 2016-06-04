@@ -42,9 +42,9 @@ public:
     return draw_layer;
   }
 
-  void SetPosition(const float _x, const float _y);
+  void SetPosition(const int _x, const int _y);
 
-  void Move(const float _x, const float _y);
+  void Move(const int _x, const int _y);
 
   bool IsVisible();
 

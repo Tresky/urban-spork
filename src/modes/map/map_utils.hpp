@@ -10,11 +10,9 @@
 #ifndef MAP_UTILS_HPP
 #define MAP_UTILS_HPP
 
-// Map Mode namespace
 namespace rpg_map_mode
 {
 
-// Private Map Mode namespace
 namespace private_map_mode
 {
 

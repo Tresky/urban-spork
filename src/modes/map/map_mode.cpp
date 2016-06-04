@@ -9,7 +9,6 @@
 #include "map_tiles.hpp"
 #include "map_objects.hpp"
 #include "map_sprites.hpp"
-#include "map_camera.hpp"
 #include "map_utils.hpp"
   using namespace rpg_input;
   using rpg_map_mode::private_map_mode::MapRectangle;
@@ -91,9 +90,8 @@ void MapMode::Update()
 
   //camera_timer.Update();
 
-
   if (!camera)
-  return;
+    return;
   camera->Update();
 
   if (!InputManager->IsUpKeyPressed() && !InputManager->IsDownKeyPressed() &&
@@ -127,10 +125,6 @@ void MapMode::Update()
     else if (InputManager->IsRightKeyPressed())
       camera->SetDirection(DIRECTION_EAST);
   }
-
-
-
-
 
   GameMode::Update();
 
@@ -240,13 +234,12 @@ void MapMode::Draw()
 
   tile_supervisor->DrawLayers(frame, MapLayerType::GROUND);
 
-  cout << "hello" << endl;
   object_supervisor->DrawObjects();
 
   tile_supervisor->DrawLayers(frame, MapLayerType::WALL);
   tile_supervisor->DrawLayers(frame, MapLayerType::SKY);
 
-  DrawGrid();
+  //DrawGrid();
 }
 
 void MapMode::DrawGrid()
@@ -403,7 +396,6 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
       layer.tiles.push_back(temp);
       map_script.CloseTable();
     }
-    cout << "1" << endl;
 
     tile_supervisor->layers.push_back(layer);
 
@@ -516,8 +508,8 @@ bool MapMode::LoadTileset(const string& _lua_filepath)
 void MapMode::UpdateCameraFrame()
 {
   sf::Vector2i position = camera->GetPosition();
-  position.x -= 16;
-  position.y -= 16;
+  position.x += 16;
+  position.y += 16;
 
   // if (camera_timer.IsRunning())
   // {
@@ -529,8 +521,8 @@ void MapMode::UpdateCameraFrame()
   frame.tile_y_offset = static_cast<int>(position.y) % 32;
 
   // The starting row and column of tiles to draw is determined by the map camera's position
-  frame.tile_x_start = static_cast<signed int>(position.x / 32 - rpg_video::VideoManager->GetScreenWidth() / 64);
-  frame.tile_y_start = static_cast<signed int>(position.y / 32 - rpg_video::VideoManager->GetScreenHeight() / 64);
+  frame.tile_x_start = static_cast<signed int>(position.x / 32 - rpg_video::VideoManager->GetScreenWidth() / 64) - 1;
+  frame.tile_y_start = static_cast<signed int>(position.y / 32 - rpg_video::VideoManager->GetScreenHeight() / 64) - 1;
 
   frame.screen_edges.left = (position.x) - rpg_video::VideoManager->GetScreenWidth() / 2;
   frame.screen_edges.right = (position.x) + rpg_video::VideoManager->GetScreenWidth() / 2;
@@ -550,9 +542,18 @@ void MapMode::UpdateCameraFrame()
     frame.num_draw_x_axis = static_cast<int>(rpg_video::VideoManager->GetScreenWidth() / 32) + 3;
     frame.num_draw_y_axis = static_cast<int>(rpg_video::VideoManager->GetScreenHeight() / 32) + 3;
 
-    cout << "START: (" << frame.tile_x_start << ", " << frame.tile_y_start << ")" << endl;
-    cout << "NUMBR: (" << frame.num_draw_x_axis << ", " << frame.num_draw_y_axis << ")" << endl;
+    //cout << "START: (" << frame.tile_x_start << ", " << frame.tile_y_start << ")" << endl;
+    //cout << "NUMBR: (" << frame.num_draw_x_axis << ", " << frame.num_draw_y_axis << ")" << endl;
 
+    //cout << rpg_system::SystemManager->GetUpdateTime() << endl;
+    // if (rpg_system::SystemManager->GetUpdateTime() == 16)
+    // {
+    //   cout << "===============Camera Report===============" << endl;
+    //   cout << "| Position: (" << position.x << ", " << position.y << ")" << endl;
+    //   cout << "| TileStart: (" << frame.tile_x_start << ", " << frame.tile_y_start << ")" << endl;
+    //   cout << "| Offset: (" << frame.tile_x_offset << ", " << frame.tile_y_offset << ")" << endl;
+    //   cout << "===========================================" << endl;
+    // }
 
   // Reinit map corner check members
   // camera_x_in_map_corner = false;
@@ -563,14 +564,14 @@ void MapMode::UpdateCameraFrame()
   //frame.num_draw_y_axis = TILES_ON_Y_AXIS + 1;
 
   // Camera exceeds the left boundary of the map
-  if(frame.tile_x_start < 0) {
-      frame.tile_x_start = 0;
-      frame.tile_x_offset = 0;//vt_utils::FloorToFloatMultiple(1.0f, _pixel_length_x);
-      frame.screen_edges.left = 0.0f;
-      frame.screen_edges.right = 1024;//SCREEN_GRID_X_LENGTH;
-      //frame.num_draw_x_axis = //TILES_ON_X_AXIS;
-      //camera_x_in_map_corner = true;
-  }
+  // if (frame.tile_x_start <= 0) {
+  //     frame.tile_x_start = 0;
+  //     frame.tile_x_offset = 0;//vt_utils::FloorToFloatMultiple(1.0f, _pixel_length_x);
+  //     frame.screen_edges.left = 0.0f;
+  //     frame.screen_edges.right = 1024;//SCREEN_GRID_X_LENGTH;
+  //     //frame.num_draw_x_axis = //TILES_ON_X_AXIS;
+  //     //camera_x_in_map_corner = true;
+  // }
   // Camera exceeds the right boundary of the map
   // else if(frame.tile_x_start +  >= tile_supervisor->_num_tile_on_x_axis) {
   //     frame.tile_x_start = static_cast<int16_t>(_tile_supervisor->_num_tile_on_x_axis - TILES_ON_X_AXIS);
@@ -582,14 +583,14 @@ void MapMode::UpdateCameraFrame()
   // }
 
   // Camera exceeds the top boundary of the map
-  if(frame.tile_y_start < 0) {
-      frame.tile_y_start = 0;
-      frame.tile_y_offset = 0;//vt_utils::FloorToFloatMultiple(2.0f, _pixel_length_y);
-      frame.screen_edges.top = 0.0f;
-      frame.screen_edges.bottom = 768;//SCREEN_GRID_Y_LENGTH;
-      //_map_frame.num_draw_y_axis = TILES_ON_Y_AXIS;
-      //camera_y_in_map_corner = true;
-  }
+  // if (frame.tile_y_start <= 0) {
+  //     frame.tile_y_start = 0;
+  //     frame.tile_y_offset = 0;//vt_utils::FloorToFloatMultiple(2.0f, _pixel_length_y);
+  //     frame.screen_edges.top = 0.0f;
+  //     frame.screen_edges.bottom = 768;//SCREEN_GRID_Y_LENGTH;
+  //     //_map_frame.num_draw_y_axis = TILES_ON_Y_AXIS;
+  //     //camera_y_in_map_corner = true;
+  // }
   // Camera exceeds the bottom boundary of the map
   // else if(_map_frame.tile_y_start + TILES_ON_Y_AXIS >= _tile_supervisor->_num_tile_on_y_axis) {
   //     _map_frame.tile_y_start = static_cast<int16_t>(_tile_supervisor->_num_tile_on_y_axis - TILES_ON_Y_AXIS);

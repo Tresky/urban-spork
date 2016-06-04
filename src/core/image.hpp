@@ -77,7 +77,7 @@ public:
    * @param _x X position
    * @param _y Y position
    */
-  void SetPosition(const unsigned int _x, const unsigned int _y);
+  void SetPosition(const int _x, const int _y);
 
   sf::Vector2f GetPosition() const;
 
@@ -125,7 +125,7 @@ public:
   void AddFrame(const unsigned int _resource_id,
                 const unsigned int _frame_time);
 
-  void SetPosition(const unsigned int _x, const unsigned int _y);
+  void SetPosition(const int _x, const int _y);
 
   /**
    * Draws the current frame of the animation.

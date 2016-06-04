@@ -38,7 +38,8 @@ int main()
   ModeManager->Push(new rpg_map_mode::MapMode("data/maps/test.lua"));
 
   sf::RectangleShape rect(sf::Vector2f(32, 32));
-  rect.setPosition(1024 / 2 - 16, 768 / 2 - 16);
+  rect.setOrigin(16, 16);
+  rect.setPosition(1024 / 2, 768 / 2);
   rect.setOutlineColor(sf::Color::Red);
   rect.setFillColor(sf::Color::Transparent);
   rect.setOutlineThickness(2.f);
@@ -51,7 +52,9 @@ int main()
     VideoManager->Clear();
 
     ModeManager->Draw();
-    VideoManager->DrawShape(rect);
+    VideoManager->DrawLine(1024 / 2, 0, 1024 / 2, 768, 5, sf::Color::Red);
+    VideoManager->DrawLine(0, 768 / 2, 1024, 768 / 2, 5, sf::Color::Red);
+    //VideoManager->DrawShape(rect);
 
     VideoManager->DrawDebugInfo();
     VideoManager->Display();

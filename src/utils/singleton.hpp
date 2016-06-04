@@ -16,7 +16,6 @@
 // Utilities namespace
 namespace rpg_utils
 {
-
  /**
   * \class Singleton
   * \brief Templated class for creating singletons.
@@ -36,7 +35,7 @@ namespace rpg_utils
   *
   * To use the created singleton see the example below:
   *
-  * <b>Singleton Definition File</b>
+  * <b>Singleton Header File</b>
   * \code
   * // ------------------------
   * // Header File: example.hpp
@@ -62,13 +61,18 @@ namespace rpg_utils
   * private:
   * 	Example(); // Private constructor
   * };
+  * \endcode
   *
+  * <b>Singleton Source File</b>
+  * \code
   * // ------------------------
   * // Source File: example.cpp
   * // ------------------------
   *
   * // Set initial value of instance variable
   * Example* ExampleSingleton = nullptr;
+  *
+  * // Overload virtual functions here...
   *
   * // Class definitions go here...
   * \endcode

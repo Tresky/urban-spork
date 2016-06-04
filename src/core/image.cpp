@@ -76,7 +76,7 @@ unsigned int Image::GetHeight() const
   return sprite.getTextureRect().height;
 }
 
-void Image::SetPosition(const unsigned int _x, const unsigned int _y)
+void Image::SetPosition(const int _x, const int _y)
 {
   position.x = _x;
   position.y = _y;
@@ -112,7 +112,7 @@ void AnimatedImage::AddFrame(const unsigned int _resource_id,
   frames.back()->frame_time = _frame_time;
 }
 
-void AnimatedImage::SetPosition(const unsigned int _x, const unsigned int _y)
+void AnimatedImage::SetPosition(const int _x, const int _y)
 {
   position = sf::Vector2f(_x, _y);
 }
