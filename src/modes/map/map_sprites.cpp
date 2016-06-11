@@ -14,7 +14,7 @@ namespace private_map_mode
 
 VirtualSprite::VirtualSprite(MapObjectDrawLayer _layer)
   : MapObject(_layer)
-  , movement_speed(7.f)
+  , movement_speed(5.f)
   , moving(false)
   , has_moved(false)
   , direction(DIRECTION_INVALID)

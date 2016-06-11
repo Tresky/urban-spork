@@ -129,10 +129,6 @@ void TileSupervisor::DrawLayers(const MapFrame& _frame, const MapLayerType& _lay
   int tile_y_end = _frame.tile_y_start + _frame.num_draw_y_axis;
   int tile_x_end = _frame.tile_x_start + _frame.num_draw_x_axis;
 
-  // cout << "TILES: " << _frame.tile_x_offset << " :: " << _frame.tile_y_offset << endl;
-
-  //cout << _frame.num_draw_x_axis << endl;
-
   for (int l = 0; l < layers.size(); ++l)
   {
     if (layers[l].layer_type != _layer_type)

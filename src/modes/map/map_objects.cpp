@@ -162,8 +162,8 @@ CollisionType ObjectSupervisor::DetectCollision(MapObject* _object, const float 
   MapRectangle sprite_rect = _object->GetGridCollisionRectangle(_x, _y);
 
   // Check if any part of the object's collision rectangle is outside of the map boundary
-  if(sprite_rect.left < 0.0f || sprite_rect.right >= static_cast<float>(collision_grid.size() * 32) ||
-          sprite_rect.top < 0.0f || sprite_rect.bottom >= static_cast<float>(collision_grid[0].size() * 32)) {
+  if(sprite_rect.top < 0.0f || sprite_rect.bottom >= static_cast<float>(collision_grid.size() * 32) ||
+          sprite_rect.left < 0.0f || sprite_rect.right >= static_cast<float>(collision_grid[0].size() * 32)) {
       return WALL_COLLISION;
   }
 
@@ -181,7 +181,7 @@ CollisionType ObjectSupervisor::DetectCollision(MapObject* _object, const float 
       for(int y = static_cast<int>(sprite_rect.top); y <= static_cast<int>(sprite_rect.bottom); ++y) {
           for(int x = static_cast<int>(sprite_rect.left); x <= static_cast<int>(sprite_rect.right); ++x) {
               // Checks the collision grid at the row-column at the object's current context
-              if(collision_grid[y / 32][x / 32] > 0)
+              if(collision_grid[y / 32 - 1][x / 32 - 1] > 0)
                   return WALL_COLLISION;
           }
       }

@@ -92,6 +92,7 @@ void MapMode::Update()
 
   if (!camera)
     return;
+
   camera->Update();
 
   if (!InputManager->IsUpKeyPressed() && !InputManager->IsDownKeyPressed() &&
@@ -508,8 +509,6 @@ bool MapMode::LoadTileset(const string& _lua_filepath)
 void MapMode::UpdateCameraFrame()
 {
   sf::Vector2i position = camera->GetPosition();
-  position.x += 16;
-  position.y += 16;
 
   // if (camera_timer.IsRunning())
   // {
