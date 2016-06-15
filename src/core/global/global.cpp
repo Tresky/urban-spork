@@ -53,8 +53,8 @@ void GlobalEngine::NewGame()
   // global_characters[0]->SetCurrentAnimation("walk-south");
   // global_characters[0]->SetDirection("south");
 
-  global_characters[0]->SetPosition(rpg_video::VideoManager->GetScreenWidth() / 2.f - 16,
-                                    rpg_video::VideoManager->GetScreenHeight() / 2.f - 16);
+  // global_characters[0]->SetPosition(rpg_video::VideoManager->GetScreenWidth() / 2.f - 16,
+  //                                   rpg_video::VideoManager->GetScreenHeight() / 2.f - 16);
 }
 
 void GlobalEngine::Update()

@@ -12,6 +12,7 @@ namespace private_map_mode
 MapObject::MapObject(MapObjectDrawLayer _layer)
   : object_id(0)
   , tile_position(0, 0)
+  , dimensions(0, 0)
   , draw_layer(_layer)
   , visible(true)
 {}
@@ -23,7 +24,7 @@ bool MapObject::ShouldDraw()
 
   MapMode* map_mode = MapMode::CurrentInstance();
   //cout << "MAP " << map_mode->GetWindowFrame().screen_edges.left << " :: " << map_mode->GetWindowFrame().screen_edges.right << endl;
-  MapRectangle grid_rect(tile_position.x, tile_position.y, tile_position.x + 32, tile_position.y + 32);
+  MapRectangle grid_rect(tile_position.x, tile_position.y, tile_position.x + dimensions.x, tile_position.y + dimensions.y);
   if (!MapRectangle::CheckIntersection(grid_rect, map_mode->GetWindowFrame().screen_edges))
     return false;
 
@@ -35,8 +36,8 @@ MapRectangle MapObject::GetGridCollisionRectangle() const
   MapRectangle rect;
   rect.left = tile_position.x;
   rect.top = tile_position.y;
-  rect.right = tile_position.x + 32;
-  rect.bottom = tile_position.y + 32;
+  rect.right = tile_position.x + dimensions.x;
+  rect.bottom = tile_position.y + dimensions.y;
   return rect;
 }
 
@@ -44,10 +45,20 @@ MapRectangle MapObject::GetGridCollisionRectangle(float tile_x, float tile_y) co
 {
   MapRectangle rect;
   rect.left = tile_x;
-  rect.right = tile_x + 32;
+  rect.right = tile_x + dimensions.x;
   rect.top = tile_y;
-  rect.bottom = tile_y + 32;
+  rect.bottom = tile_y + dimensions.y;
   return rect;
+}
+
+void MapObject::SetDimensions(const int _x, const int _y)
+{
+  dimensions = sf::Vector2i(_x, _y);
+}
+
+sf::Vector2i MapObject::GetDimensions() const
+{
+  return dimensions;
 }
 
 void MapObject::SetPosition(const int _x, const int _y)
@@ -56,9 +67,21 @@ void MapObject::SetPosition(const int _x, const int _y)
   tile_position.y = _y;
 }
 
+void MapObject::SetCenterPosition(const int _x, const int _y)
+{
+  tile_position.x = _x - dimensions.x / 2;
+  tile_position.y = _y - dimensions.y / 2;
+}
+
 void MapObject::Move(const int _x, const int _y)
 {
   SetPosition(tile_position.x + _x, tile_position.y + _y);
+}
+
+void MapObject::MoveCenter(const int _x, const int _y)
+{
+  SetPosition(tile_position.x + _x - dimensions.x,
+              tile_position.y + _y - dimensions.y);
 }
 
 bool MapObject::IsVisible()
@@ -79,6 +102,12 @@ unsigned int MapObject::GetObjectId() const
 sf::Vector2i MapObject::GetPosition() const
 {
   return tile_position;
+}
+
+sf::Vector2i MapObject::GetCenterPosition() const
+{
+  return sf::Vector2i(tile_position.x + dimensions.x / 2,
+                      tile_position.y + dimensions.y / 2);
 }
 
 /***************************************

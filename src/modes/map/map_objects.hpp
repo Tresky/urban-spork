@@ -42,9 +42,17 @@ public:
     return draw_layer;
   }
 
+  void SetDimensions(const int _x, const int _y);
+
+  sf::Vector2i GetDimensions() const;
+
   void SetPosition(const int _x, const int _y);
 
+  void SetCenterPosition(const int _x, const int _y);
+
   void Move(const int _x, const int _y);
+
+  void MoveCenter(const int _x, const int _y);
 
   bool IsVisible();
 
@@ -53,6 +61,8 @@ public:
   unsigned int GetObjectId() const;
 
   sf::Vector2i GetPosition() const;
+
+  sf::Vector2i GetCenterPosition() const;
 
   virtual void Update() = 0;
   virtual void Draw() = 0;
@@ -64,6 +74,7 @@ protected:
   unsigned int object_id;
 
   sf::Vector2i tile_position;
+  sf::Vector2i dimensions;
 
   bool visible;
 

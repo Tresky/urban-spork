@@ -44,7 +44,8 @@ MapMode::MapMode(const string& _lua_filepath)
   }
   temp->SetCurrentAnimation("idle-south");
   temp->SetDirection(DIRECTION_SOUTH);
-  temp->SetPosition(64, 64);
+  temp->SetCenterPosition(128, 128);
+  temp->SetDimensions(32, 32);
   object_supervisor->RegisterObject(temp);
   camera = temp;
 
@@ -83,6 +84,11 @@ void MapMode::SetCamera(private_map_mode::VirtualSprite* _sprite, const float _d
 
 void MapMode::Update()
 {
+  if (!camera)
+    return;
+
+  camera->Update();
+
   UpdateCameraFrame();
 
   tile_supervisor->Update();
@@ -90,10 +96,7 @@ void MapMode::Update()
 
   //camera_timer.Update();
 
-  if (!camera)
-    return;
 
-  camera->Update();
 
   if (!InputManager->IsUpKeyPressed() && !InputManager->IsDownKeyPressed() &&
       !InputManager->IsLeftKeyPressed() && !InputManager->IsRightKeyPressed())
@@ -215,9 +218,11 @@ void MapMode::Update()
 float MapMode::GetScreenXCoordinate(float _tile_position_x) const
 {
     _tile_position_x = _tile_position_x - frame.screen_edges.left;
-        //* 1024 / private_map_mode::SCREEN_GRID_Y_LENGTH;
-    //_tile_position_x = _tile_position_x + rpg_video::VideoManager->GetScreenHeight() / 2;
-    //tile_position_x = FloorToFloatMultiple(tile_position_x, GetMapPixelXLength());
+
+
+    // _tile_position_x = (_tile_position_x - frame.screen_edges.left)
+    //     * 1024.f / 64.f;
+    // _tile_position_x = std::floor(_tile_position_x / 10) * 10;//  FloorToFloatMultiple(tile_position_x, GetMapPixelXLength());
     return _tile_position_x;
 }
 
@@ -508,7 +513,7 @@ bool MapMode::LoadTileset(const string& _lua_filepath)
 
 void MapMode::UpdateCameraFrame()
 {
-  sf::Vector2i position = camera->GetPosition();
+  sf::Vector2i position = camera->GetCenterPosition();
 
   // if (camera_timer.IsRunning())
   // {

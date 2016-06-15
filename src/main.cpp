@@ -24,7 +24,6 @@ void DeconstructSingletons();
 int main()
 {
   atexit(DeconstructSingletons);
-  //sf::RenderWindow *window = new sf::RenderWindow(sf::VideoMode(1024, 720), "Test");
 
   if (!InitializeSingletons())
   {
@@ -54,7 +53,6 @@ int main()
     ModeManager->Draw();
     VideoManager->DrawLine(1024 / 2, 0, 1024 / 2, 768, 5, sf::Color::Red);
     VideoManager->DrawLine(0, 768 / 2, 1024, 768 / 2, 5, sf::Color::Red);
-    //VideoManager->DrawShape(rect);
 
     VideoManager->DrawDebugInfo();
     VideoManager->Display();
