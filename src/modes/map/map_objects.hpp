@@ -33,6 +33,11 @@ public:
 
   bool ShouldDraw();
 
+  const int GetCollisionMask() const
+  {
+    return collision_mask;
+  }
+
   MapRectangle GetGridCollisionRectangle() const;
 
   MapRectangle GetGridCollisionRectangle(float tile_x, float tile_y) const;
@@ -40,6 +45,11 @@ public:
   MapObjectDrawLayer GetObjectDrawLayer() const
   {
     return draw_layer;
+  }
+
+  ObjectType GetType() const
+  {
+    return object_type;
   }
 
   void SetDimensions(const int _x, const int _y);
@@ -58,7 +68,7 @@ public:
 
   void SetVisible(bool _visible);
 
-  unsigned int GetObjectId() const;
+  int GetObjectId() const;
 
   sf::Vector2i GetPosition() const;
 
@@ -80,6 +90,9 @@ protected:
 
   MapObjectDrawLayer draw_layer;
 
+  int collision_mask;
+
+  ObjectType object_type;
 };
 
 class ObjectSupervisor
@@ -107,7 +120,11 @@ public:
 
   bool IsMapCollision(const unsigned int _x, const unsigned int _y);
 
-  CollisionType DetectCollision(MapObject* _object, const float _x, const float _y, MapObject* _collision_object);
+  bool CheckObjectCollision(const MapRectangle& _rect, const MapObject* _object);
+
+  CollisionType DetectCollision(MapObject* _object, const float _x, const float _y, MapObject** _collision_object);
+
+  CollisionType GetCollisionFromObjectType(MapObject* _object) const;
 
   void Update();
 

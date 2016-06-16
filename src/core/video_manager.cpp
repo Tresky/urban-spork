@@ -16,6 +16,7 @@ VideoEngine::VideoEngine()
   : window(nullptr)
   , screen_width(0)
   , screen_height(0)
+  , debug(true)
 {
   IF_PRINT_DEBUG(VIDEO_DEBUG) << "VideoEngine constructor called" << endl;
 

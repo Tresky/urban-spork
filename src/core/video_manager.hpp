@@ -148,7 +148,7 @@ public:
 
   /**
    * Draws an SFML shape to the window.
-   * @param _shape SFML shape to draw
+   * \param _shape SFML shape to draw
    */
   void DrawShape(sf::Shape& _shape) const;
 
@@ -166,6 +166,18 @@ public:
    * Closes the SFML window handle.
    */
   void Close() const;
+
+  /**
+   * Tells whether or not the application should
+   * or should not draw debug information to the
+   * screen. This includes collision rectangles,
+   * FPS counters, etc.
+   * \return True if debug is enabled, false otherwise
+   */
+  const bool IsDebug() const
+  {
+    return debug;
+  }
 
   /**
    * Draws a line to the SFML window handle. This
@@ -233,6 +245,9 @@ private:
   unsigned int screen_width;
   //! Height of the screen
   unsigned int screen_height;
+
+  //! Whether or not to draw debug info (collision boxes, etc)
+  bool debug;
 }; // class VideoEngine
 
 } // namespace rpg_video

@@ -38,6 +38,8 @@ public:
 
   void SetDirection(const Direction _direction);
 
+  void SetRandomDirection();
+
   const Direction GetDirection()
   {
     return direction;
@@ -126,6 +128,8 @@ public:
   }
 
 private:
+  void UpdateHostile();
+
   enum State
   {
     SPAWNING = 0,
@@ -133,7 +137,7 @@ private:
     DEAD
   } state;
 
-
+  int time_elapsed;
 };
 
 } // Private Map Mode namespace

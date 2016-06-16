@@ -15,11 +15,13 @@ namespace private_map_mode
 
 VirtualSprite::VirtualSprite(MapObjectDrawLayer _layer)
   : MapObject(_layer)
-  , movement_speed(5.f)
+  , movement_speed(8.f)
   , moving(false)
   , has_moved(false)
   , direction(DIRECTION_INVALID)
-{}
+{
+  object_type = VIRTUAL_TYPE;
+}
 
 void VirtualSprite::Update()
 {
@@ -32,6 +34,38 @@ void VirtualSprite::Update()
 void VirtualSprite::SetDirection(const Direction _direction)
 {
   direction = _direction;
+}
+
+void VirtualSprite::SetRandomDirection()
+{
+    switch(rand() % 8 + 1) {
+    case 1:
+        SetDirection(DIRECTION_NORTH);
+        break;
+    case 2:
+        SetDirection(DIRECTION_NORTHWEST);
+        break;
+    case 3:
+        SetDirection(DIRECTION_NORTHEAST);
+        break;
+    case 4:
+        SetDirection(DIRECTION_SOUTH);
+        break;
+    case 5:
+        SetDirection(DIRECTION_SOUTHWEST);
+        break;
+    case 6:
+        SetDirection(DIRECTION_SOUTHEAST);
+        break;
+    case 7:
+        SetDirection(DIRECTION_EAST);
+        break;
+    case 8:
+        SetDirection(DIRECTION_WEST);
+        break;
+    default:
+        IF_PRINT_WARNING(MAP_MODE_DEBUG) << "Invalid randomized direction was chosen" << endl;
+    }
 }
 
 float VirtualSprite::CalculateDistanceMoved()
@@ -55,91 +89,94 @@ float VirtualSprite::CalculateDistanceMoved()
 
 void VirtualSprite::SetNextPosition()
 {
-    // Next sprite's position holders
-    float next_pos_x = GetPosition().x;
-    float next_pos_y = GetPosition().y;
-    float distance_moved = CalculateDistanceMoved();
+  // Next sprite's position holders
+  float next_pos_x = static_cast<float>(GetPosition().x);
+  float next_pos_y = static_cast<float>(GetPosition().y);
 
-    // Move the sprite the appropriate distance in the appropriate Y and X direction
-    if(direction == DIRECTION_NORTH || direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST)
-        next_pos_y -= distance_moved;
-    else if(direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_SOUTHEAST)
-        next_pos_y += distance_moved;
-    if(direction == DIRECTION_WEST || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_NORTHWEST)
-        next_pos_x -= distance_moved;
-    else if(direction == DIRECTION_EAST || direction == DIRECTION_SOUTHEAST || direction == DIRECTION_NORTHEAST)
-        next_pos_x += distance_moved;
+  // TPNOTE: This is an integer now because, for some reason, if
+  // left as a float, characters move quicker up and left than they do
+  // right and down. Still not sure why...
+  // TPTODO: This MUST be fixed or else we can't do diagonal movement properly.
+  int distance_moved = CalculateDistanceMoved();
 
-    // When not moving, do not check anything else.
-    if(next_pos_x == GetPosition().x && next_pos_y == GetPosition().y)
-        return;
+  // Move the sprite the appropriate distance in the appropriate Y and X direction
+  if(direction == DIRECTION_NORTH || direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST)
+    next_pos_y -= distance_moved;
+  else if(direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_SOUTHEAST)
+    next_pos_y += distance_moved;
+  if(direction == DIRECTION_WEST || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_NORTHWEST)
+    next_pos_x -= distance_moved;
+  else if(direction == DIRECTION_EAST || direction == DIRECTION_SOUTHEAST || direction == DIRECTION_NORTHEAST)
+    next_pos_x += distance_moved;
 
-    // We've got the next position, let's check whether the next position
-    // should be revised.
+  // When not moving, do not check anything else.
+  if(next_pos_x == GetPosition().x && next_pos_y == GetPosition().y)
+    return;
 
-    // Used to know whether we could fall back to a straight move
-    // in case of collision.
-    bool moving_diagonally = (direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST ||
-                              direction == DIRECTION_SOUTHEAST || direction == DIRECTION_SOUTHWEST);
+  // We've got the next position, let's check whether the next position
+  // should be revised.
 
-    // Handle collision with the first object encountered
-    MapObject* collision_object = nullptr;
-    MapMode* map_mode = MapMode::CurrentInstance();
-    ObjectSupervisor* object_supervisor = map_mode->GetObjectSupervisor();
-    CollisionType collision_type = object_supervisor->DetectCollision(this, next_pos_x,
-                      next_pos_y,
-                      collision_object);
+  // Used to know whether we could fall back to a straight move
+  // in case of collision.
+  bool moving_diagonally = (direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST ||
+                            direction == DIRECTION_SOUTHEAST || direction == DIRECTION_SOUTHWEST);
 
-                      //cout << "COLL: " << next_pos_x << " :: " << next_pos_y << endl;
-    // Try to fall back to straight direction
-    if(moving_diagonally && collision_type != NO_COLLISION) {
-        // Try on x axis
-        if(object_supervisor->DetectCollision(this, GetPosition().x, next_pos_y, collision_object) == NO_COLLISION) {
-            next_pos_x = GetPosition().x;
-            collision_type = NO_COLLISION;
-        } // and then on y axis
-        else if(object_supervisor->DetectCollision(this, next_pos_x, GetPosition().y, collision_object) == NO_COLLISION) {
-            next_pos_y = GetPosition().y;
-            collision_type = NO_COLLISION;
-        }
+  // Handle collision with the first object encountered
+  MapObject* collision_object = nullptr;
+  MapMode* map_mode = MapMode::CurrentInstance();
+  ObjectSupervisor* object_supervisor = map_mode->GetObjectSupervisor();
+  CollisionType collision_type = object_supervisor->DetectCollision(this, next_pos_x,
+                    next_pos_y,
+                    &collision_object);
+
+  // Try to fall back to straight direction
+  if(moving_diagonally && collision_type != NO_COLLISION) {
+    // Try on x axis
+    if(object_supervisor->DetectCollision(this, GetPosition().x, next_pos_y, &collision_object) == NO_COLLISION) {
+      next_pos_x = GetPosition().x;
+      collision_type = NO_COLLISION;
+    } // and then on y axis
+    else if(object_supervisor->DetectCollision(this, next_pos_x, GetPosition().y, &collision_object) == NO_COLLISION) {
+      next_pos_y = GetPosition().y;
+      collision_type = NO_COLLISION;
     }
+  }
 
-    // // Try to handle wall and physical collisions after a failed straight or diagonal move
-    switch(collision_type) {
-    case NO_COLLISION:
-      default:
-        break;
-    case WALL_COLLISION:
-        // When being blocked and moving diagonally, the npc is stuck.
-        // if(moving_diagonally)
-        //     return;
+  // // Try to handle wall and physical collisions after a failed straight or diagonal move
+  switch(collision_type) {
+  case NO_COLLISION:
+    default:
+      break;
+  case WALL_COLLISION:
+    // When being blocked and moving diagonally, the npc is stuck.
+    // if(moving_diagonally)
+    //     return;
 
-        // Don't consider physical objects with an event to avoid sliding on their edges,
-        // making them harder to "talk with".
-        // if (collision_object && this == map_mode->GetCamera()) {
-        //     PhysicalObject *phs = reinterpret_cast<PhysicalObject *>(collision_object);
-        //     if(phs && !phs->GetEventIdWhenTalking().empty())
-        //         return;
-        // }
+    // Don't consider physical objects with an event to avoid sliding on their edges,
+    // making them harder to "talk with".
+    // if (collision_object && this == map_mode->GetCamera()) {
+    //     PhysicalObject *phs = reinterpret_cast<PhysicalObject *>(collision_object);
+    //     if(phs && !phs->GetEventIdWhenTalking().empty())
+    //         return;
+    // }
 
-        // Fix the direction and destination to walk-around obstacles
-        // if (_HandleWallEdges(next_pos_x, next_pos_y, distance_moved, collision_object))
-        //     break;
-        // We don't do any other checks for the player sprite.
-        if (this == map_mode->GetCamera())
-            return;
+    // Fix the direction and destination to walk-around obstacles
+    // if (_HandleWallEdges(next_pos_x, next_pos_y, distance_moved, collision_object))
+    //     break;
+    // We don't do any other checks for the player sprite.
+    if (this == map_mode->GetCamera())
+      return;
+    // NPC sprites:
 
-        // NPC sprites:
-
-        // When it's a true wall, try against the collision grid
-        // if(!collision_object) {
-        //     // Try a random diagonal to avoid the wall in straight direction
-        //     if(_direction & (NORTH | SOUTH))
-        //         _direction |= RandomBoundedInteger(0, 1) ? EAST : WEST;
-        //     else if(_direction & (EAST | WEST))
-        //         _direction |= RandomBoundedInteger(0, 1) ? NORTH : SOUTH;
-        //     return;
-        // }
+    // When it's a true wall, try against the collision grid
+    if (!collision_object) {
+      // Try a random diagonal to avoid the wall in straight direction
+      if (direction == DIRECTION_NORTH || direction == DIRECTION_SOUTH)
+        direction = rand() % 1 ? DIRECTION_EAST : DIRECTION_WEST;
+      else if(direction == DIRECTION_EAST || direction == DIRECTION_WEST)
+        direction = rand() % 1 ? DIRECTION_NORTH : DIRECTION_SOUTH;
+      return;
+    }
         // // Physical and treasure objects are the only other matching "fake" walls
         // else {
         //     // Try a diagonal to avoid the sprite in straight direction by comparing
@@ -153,42 +190,43 @@ void VirtualSprite::SetNextPosition()
         //     return;
         // }
         // Other cases shouldn't happen.
+      break;
+    case ENEMY_COLLISION:
+      // Check only whether the player has collided with a monster
+      if (this == map_mode->GetCamera() && collision_object &&
+          collision_object->GetType() == ENEMY_TYPE) {
+        // EnemySprite* enemy = reinterpret_cast<EnemySprite*>(collision_object);
+
+        // Check whether the player is actually playing. If not, we don't want to start a battle.
+        // if (map_mode->CurrentState() == STATE_EXPLORE)
+        //     map_mode->StartEnemyEncounter(enemy);
+        return;
+      }
+
+      break;
+    case CHARACTER_COLLISION:
+      // Check whether the sprite is tangled with another character, even without moving
+      // For instance, when colliding with a path follower npc.
+      // And let it through in that case.
+      if (object_supervisor->CheckObjectCollision(GetGridCollisionRectangle(), collision_object)) {
+        collision_type = NO_COLLISION;
         break;
-    // case ENEMY_COLLISION:
-    //     // Check only whether the player has collided with a monster
-    //     if(this == map_mode->GetCamera() &&
-    //             collision_object && collision_object->GetObjectType() == ENEMY_TYPE) {
-    //         EnemySprite* enemy = reinterpret_cast<EnemySprite *>(collision_object);
-    //
-    //         // Check whether the player is actually playing. If not, we don't want to start a battle.
-    //         if (map_mode->CurrentState() == STATE_EXPLORE)
-    //             map_mode->StartEnemyEncounter(enemy);
-    //         return;
-    //     }
-    //
-    //     break;
-    // case CHARACTER_COLLISION:
-    //     // Check whether the sprite is tangled with another character, even without moving
-    //     // For instance, when colliding with a path follower npc.
-    //     // And let it through in that case.
-    //     if(object_supervisor->CheckObjectCollision(GetGridCollisionRectangle(), collision_object)) {
-    //         collision_type = NO_COLLISION;
-    //         break;
-    //     }
-    //
-    //     // When the sprite is controlled by the camera, let the player handle the position correction.
-    //     if(this == map_mode->GetCamera())
-    //         return;
-    //
-    //     // Check whether an enemy has collided with the player
-    //     if(this->GetType() == ENEMY_TYPE && collision_object == map_mode->GetCamera()) {
-    //         EnemySprite* enemy = reinterpret_cast<EnemySprite *>(this);
-    //
-    //         // Check whether the player is actually playing. If not, we don't want to start a battle.
-    //         if (map_mode->CurrentState() == STATE_EXPLORE)
-    //             map_mode->StartEnemyEncounter(enemy, false, true); // The enemy gets a boost in agility.
-    //         return;
-    //     }
+      }
+
+      // When the sprite is controlled by the camera, let the player handle the position correction.
+      if (this == map_mode->GetCamera())
+        return;
+
+      // Check whether an enemy has collided with the player
+      if (this->GetType() == ENEMY_TYPE &&
+          collision_object == map_mode->GetCamera()) {
+          // EnemySprite* enemy = reinterpret_cast<EnemySprite *>(this);
+          //
+          // // Check whether the player is actually playing. If not, we don't want to start a battle.
+          // if (map_mode->CurrentState() == STATE_EXPLORE)
+          //     map_mode->StartEnemyEncounter(enemy, false, true); // The enemy gets a boost in agility.
+        return;
+      }
     //
     //     // When being blocked and moving diagonally, the npc is stuck.
     //     if(moving_diagonally)
@@ -228,7 +266,9 @@ void VirtualSprite::SetNextPosition()
 
 MapSprite::MapSprite(MapObjectDrawLayer _layer)
   : VirtualSprite(_layer)
-{}
+{
+  object_type = SPRITE_TYPE;
+}
 
 MapSprite::~MapSprite()
 {
@@ -363,8 +403,10 @@ void MapSprite::Draw()
 EnemySprite::EnemySprite()
   : MapSprite(GROUND_OBJECT)
   , state(State::HOSTILE)
+  , time_elapsed(0)
 {
-
+  object_type = ENEMY_TYPE;
+  moving = false;
 }
 
 EnemySprite::~EnemySprite()
@@ -383,9 +425,7 @@ void EnemySprite::Update()
 
       break;
     case State::HOSTILE:
-      /// some stuffs
-      MapSprite::Update();
-
+      UpdateHostile();
       break;
     case State::DEAD:
     default:
@@ -410,14 +450,40 @@ void EnemySprite::Draw()
     animations[current_animation]->SetPosition(x, y);
     animations[current_animation]->Draw();
 
-    sf::RectangleShape rect(sf::Vector2f(32, 32));
-    rect.setOutlineColor(sf::Color::Red);
-    rect.setOutlineThickness(3.f);
-    rect.setPosition(x, y);
-    // rpg_video::VideoManager->DrawShape(rect);
+    if (rpg_video::VideoManager->IsDebug())
+    {
+      MapRectangle rect = GetGridCollisionRectangle(x, y);
+      sf::RectangleShape r(sf::Vector2f(rect.right - rect.left,
+                                           rect.bottom - rect.top));
+      r.setOutlineColor(sf::Color::Red);
+      r.setOutlineThickness(1.f);
+      r.setFillColor(sf::Color::Transparent);
+      r.setPosition(rect.left, rect.top);
+      rpg_video::VideoManager->DrawShape(r);
+    }
+  }
+}
 
-    // MapRectangle rect = GetScreenCollisionRectangle(x, y);
-    // VideoManager->DrawRectangle(rect.right - rect.left, rect.bottom - rect.top, Color(1.0f, 0.0f, 0.0f, 0.6f));
+void EnemySprite::UpdateHostile()
+{
+  VirtualSprite* camera = MapMode::CurrentInstance()->GetCamera();
+  sf::Vector2i camera_pos = camera->GetPosition();
+
+  sf::Vector2i delta_pos = sf::Vector2i(GetPosition().x - camera_pos.x,
+                                        GetPosition().y - camera_pos.y);
+
+  // TPTODO: Make enemy update distance dynamic somehow
+  if (abs(delta_pos.x) > 1024 || abs(delta_pos.y) > 720)
+    return;
+
+  MapSprite::Update();
+
+  time_elapsed += rpg_system::SystemManager->GetUpdateTime();
+
+  if (time_elapsed >= (rand() % 2000 + 750)) {
+      SetRandomDirection();
+      moving = true;
+      time_elapsed = 0;
   }
 }
 
