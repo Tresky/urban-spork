@@ -51,8 +51,8 @@ int main()
     VideoManager->Clear();
 
     ModeManager->Draw();
-    VideoManager->DrawLine(1024 / 2, 0, 1024 / 2, 768, 5, sf::Color::Red);
-    VideoManager->DrawLine(0, 768 / 2, 1024, 768 / 2, 5, sf::Color::Red);
+    // VideoManager->DrawLine(1024 / 2, 0, 1024 / 2, 768, 5, sf::Color::Red);
+    // VideoManager->DrawLine(0, 768 / 2, 1024, 768 / 2, 5, sf::Color::Red);
 
     VideoManager->DrawDebugInfo();
     VideoManager->Display();

@@ -40,8 +40,8 @@ GlobalCharacter* GlobalEngine::GetHero()
 
 void GlobalEngine::NewGame()
 {
-  global_characters[0] = new GlobalCharacter();
-  hero_id = 0;
+  // global_characters[0] = new GlobalCharacter();
+  // hero_id = 0;
 
   // if (!global_characters[0]->LoadAnimations("data/gchar/actor0-walking.lua"))
   // {

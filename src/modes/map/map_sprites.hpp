@@ -90,11 +90,50 @@ public:
 
   virtual void Draw();
 
-private:
+protected:
 
   std::string current_animation;
 
   std::map<std::string, rpg_video::AnimatedImage*> animations;
+};
+
+class EnemySprite: public MapSprite
+{
+public:
+  EnemySprite();
+
+  virtual ~EnemySprite();
+
+  static EnemySprite* Create();
+
+  virtual void Update();
+
+  virtual void Draw();
+
+  bool IsDead() const
+  {
+    return state == State::DEAD;
+  }
+
+  bool IsSpawning() const
+  {
+    return state == State::SPAWNING;
+  }
+
+  bool IsHostile() const
+  {
+    return state == State::HOSTILE;
+  }
+
+private:
+  enum State
+  {
+    SPAWNING = 0,
+    HOSTILE,
+    DEAD
+  } state;
+
+
 };
 
 } // Private Map Mode namespace

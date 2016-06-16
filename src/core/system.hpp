@@ -1,3 +1,17 @@
+/**
+ * \file system.hpp
+ *
+ * Contains a singleton class for managing all
+ * timers that are used in the game. This file
+ * also contains a large class that is used to
+ * create SystemTimer objects for timing the
+ * various functions within the game such as
+ * battle timers, day/night cycles, etc.
+ *
+ * \author Tyler Petresky <hello@tylerpetresky.com>
+ * \date 06-14-16
+ */
+
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
@@ -9,14 +23,11 @@ namespace rpg_system
 {
 
 class SystemEngine;
-
 extern SystemEngine *SystemManager;
 extern bool SYSTEM_DEBUG;
 
 const unsigned int SYSTEM_INFINITE_TIME = 0xFFFFFFFF;
-
 const unsigned int SYSTEM_TIMER_NO_LOOPS = 0;
-
 const unsigned int SYSTEM_TIMER_INFINITE_LOOP = -1;
 
 /**
@@ -33,7 +44,19 @@ enum TimerStates
 };
 
 /**
+ * \class SystemTimer
+ * \brief Single class that is used to create timers
+ * throughout the game for timing various functions.
  *
+ * \ingroup SystemEngine
+ *
+ * This large class contains all of the functionality needed
+ * to create, initialize, start, stop, pause, and all around
+ * use timers throughout the game. These timers are global in
+ * nature in the sense that they are very general purpose.
+ *
+ * \author Tyler Petresky <hello@tylerpetresky.com>
+ * \date 06-14-16
  */
 class SystemTimer
 {
@@ -45,8 +68,8 @@ public:
 
   /**
    * Constructor for SystemTimer
-   * @param _duration Integer for the length of the timer (milliseconds)
-   * @param _loops    Integer for the number of loops to execute
+   * \param _duration Integer for the length of the timer (milliseconds)
+   * \param _loops    Integer for the number of loops to execute
    */
   SystemTimer(const unsigned int _duration, const unsigned int _loops = 0);
 
@@ -57,8 +80,8 @@ public:
 
   /**
    * Initialize the timer to it's initial state.
-   * @param _duration Integer for the length of the timer (milliseconds)
-   * @param _loops    Intefer for the number of loops to execute
+   * \param _duration Integer for the length of the timer (milliseconds)
+   * \param _loops    Intefer for the number of loops to execute
    */
   void InitTimer(const unsigned int _duration, const unsigned int _loops = 0);
 
@@ -110,7 +133,7 @@ public:
   /**
    * Returns boolean representing if the timer is
    * in it's initial state.
-   * @return True if timer_state is TIMER_INITIAL, false otherwise
+   * \return True if timer_state is TIMER_INITIAL, false otherwise
    */
   bool IsInitial() const
   {
@@ -120,7 +143,7 @@ public:
   /**
    * Returns boolean representing if the timer is
    * in it's running state.
-   * @return True if timer_state is TIMER_RUNNING, false otherwise
+   * \return True if timer_state is TIMER_RUNNING, false otherwise
    */
   bool IsRunning() const
   {
@@ -130,7 +153,7 @@ public:
   /**
    * Returns boolean representing if the timer is
    * in it's paused state.
-   * @return True if timer_state is TIMER_PAUSED, false otherwise
+   * \return True if timer_state is TIMER_PAUSED, false otherwise
    */
   bool IsPaused() const
   {
@@ -140,7 +163,7 @@ public:
   /**
    * Returns boolean representing if the timer is
    * in it's finished state.
-   * @return True if timer_state if TIMER_FINISHED, false otherwise
+   * \return True if timer_state if TIMER_FINISHED, false otherwise
    */
   bool IsFinished() const
   {
@@ -149,7 +172,7 @@ public:
 
   /**
    * Returns the timer that is left on the timer.
-   * @return Unsigned integer representing the time left on the timer (milliseconds)
+   * \return Unsigned integer representing the time left on the timer (milliseconds)
    */
   unsigned int TimeLeft() const
   {
@@ -173,31 +196,31 @@ public:
 
   /**
    * Set the duration of the timer.
-   * @param _duration Unsigned integer to set the duration to (milliseconds)
+   * \param _duration Unsigned integer to set the duration to (milliseconds)
    */
   void SetDuration(const unsigned int _duration);
 
   /**
    * Set the current expired time of the timer.
-   * @param _time_expired Unsigned integer to set the expired time to (milliseconds)
+   * \param _time_expired Unsigned integer to set the expired time to (milliseconds)
    */
   void SetTimeExpired(const unsigned int _time_expired);
 
   /**
    * Set the number of times to loop the timer.
-   * @param _loops Unsigned integer to set the number of loops to
+   * \param _loops Unsigned integer to set the number of loops to
    */
   void SetNumberOfLoops(const unsigned int _loops);
 
   /**
    * Set the mode owner of this timer.
-   * @param _owner Pointer to GameMode to own this timer
+   * \param _owner Pointer to GameMode to own this timer
    */
   void SetModeOwner(rpg_mode_manager::GameMode *_owner);
 
   /**
    * Returns the current state of the timer.
-   * @return TimerState enumerator value representing the timer state
+   * \return TimerState enumerator value representing the timer state
    */
   TimerStates GetState() const
   {
@@ -206,7 +229,7 @@ public:
 
   /**
    * Returns the duration of the timer.
-   * @return Unsigned integer for the duration of the timer (milliseconds)
+   * \return Unsigned integer for the duration of the timer (milliseconds)
    */
   unsigned int GetDuration() const
   {
@@ -215,7 +238,7 @@ public:
 
   /**
    * Returns the time expired on the timer.
-   * @return Unsigned integer for the time expired (milliseconds)
+   * \return Unsigned integer for the time expired (milliseconds)
    */
   unsigned int GetTimeExpired() const
   {
@@ -224,7 +247,7 @@ public:
 
   /**
    * Returns the mode owner for this timer.
-   * @return Pointer to mode owner, nullptr if none
+   * \return Pointer to mode owner, nullptr if none
    */
   rpg_mode_manager::GameMode *GetModeOwner() const
   {
@@ -233,7 +256,7 @@ public:
 
   /**
    * Returns the number of loops currently completed.
-   * @return Unsigned integer for the number of loops that have been completed
+   * \return Unsigned integer for the number of loops that have been completed
    */
   unsigned int GetTimesCompleted() const
   {
@@ -243,31 +266,43 @@ public:
 protected:
   /**
    * Performs the actual updating of the class members.
-   * @param _time Unsigned integer to update the timer by
+   * \param _time Unsigned integer to update the timer by
    */
   void UpdateTimer(const unsigned int _time);
 
-  // Enumerator holding the current timer state
+  //! Enumerator holding the current timer state
   TimerStates timer_state;
 
-  // Total duration of the timer in milliseconds
+  //! Total duration of the timer in milliseconds
   unsigned int duration;
 
-  // Total number of loops to be completed
+  //! Total number of loops to be completed
   signed int loops;
 
-  // Total time expired in the current loop in milliseconds
+  //! Total time expired in the current loop in milliseconds
   unsigned int time_expired;
 
-  // Total number of loops completed since starting the timer
+  //! Total number of loops completed since starting the timer
   unsigned int times_completed;
 
-  // Pointer to the game mode that owns this timer, nullptr if none
+  //! Pointer to the game mode that owns this timer, nullptr if none
   rpg_mode_manager::GameMode* mode_owner;
 };
 
 /**
+ * \class SystemEngine
+ * \brief Global singleton class that manages all of
+ * the SystemTimers throughout the game.
  *
+ * \ingroup SystemEngine
+ *
+ * This Singleton class is very simple and only organizes
+ * and handles the SystemTimers within the application.
+ * Alongside this, there are a few smaller functionalities
+ * that really didn't fit into any other system.
+ *
+ * \author Tyler Petresky <hello@tylerpetresky.com>
+ * \date 06-14-16
  */
 class SystemEngine : public rpg_utils::Singleton<SystemEngine>
 {
@@ -281,7 +316,7 @@ public:
   /**
    * Inherited from Singleton; initialize the
    * SystemManager singleton object.
-   * @return True if successful, false otherwise
+   * \return True if successful, false otherwise
    */
   bool InitSingleton();
 
@@ -297,7 +332,6 @@ public:
   void InitUpdateTimer()
   {
     last_update = global_time.getElapsedTime().asMilliseconds();
-    //last_update = SDL_GetTicks();
     update_time = 1;
   }
 
@@ -315,7 +349,7 @@ public:
 
   /**
    * Returns the times since the last update has happened.
-   * @return Unsigned integer for elapsed milliseconds since last update
+   * \return Unsigned integer for elapsed milliseconds since last update
    */
   inline unsigned int GetUpdateTime() const
   {
@@ -325,9 +359,9 @@ public:
   /**
    * Set's the current playtime. This is to be used
    * whenever a save game is loaded from memory.
-   * @param _hour   Integer representing number of hours
-   * @param _minute Integer representing number of minutes
-   * @param _second Integer representing number of seconds
+   * \param _hour   Integer representing number of hours
+   * \param _minute Integer representing number of minutes
+   * \param _second Integer representing number of seconds
    */
   void SetPlayTime(const int _hour, const int _minute, const int _second)
   {
@@ -339,7 +373,7 @@ public:
 
   /**
    * Returns the number of hours played.
-   * @return Integer for number of hours played
+   * \return Integer for number of hours played
    */
   int GetPlayHours() const
   {
@@ -348,7 +382,7 @@ public:
 
   /**
    * Returns the number of minutes played.
-   * @return Integer for number of minutes played
+   * \return Integer for number of minutes played
    */
   int GetPlayMinutes() const
   {
@@ -357,7 +391,7 @@ public:
 
   /**
    * Returns the number of seconds played.
-   * @return Integer for number of seconds played
+   * \return Integer for number of seconds played
    */
   int GetPlaySeconds() const
   {
@@ -367,7 +401,7 @@ public:
   /**
    * Returns boolean representing if the user wants
    * to exit the game.
-   * @return True if game is exiting, false otherwise
+   * \return True if game is exiting, false otherwise
    */
   bool IsExiting() const
   {
@@ -385,25 +419,28 @@ public:
 private:
   SystemEngine();
 
-  // Milliseconds since the last call to UpdateTimers()
+  //! Milliseconds since the last call to UpdateTimers()
   unsigned int last_update;
 
-  // Number of milliseconds that have transpired since the last timer update
+  //! Number of milliseconds that have transpired since the last timer update
   unsigned int update_time;
 
-  // Variables representing the play time for the player
+  //! Numbers of hours played by the player
   int hours_played;
+  //! Number of minutes played by the player
   int minutes_played;
+  //! Number of seconds played by the player
   int seconds_played;
+  //! Number of milliseconds played by the player
   int milliseconds_played;
 
-  // Boolean flag used for signaling the exiting of the game
+  //! Boolean flag used for signaling the exiting of the game
   bool is_exiting;
 
-  // SFML clock object to track the time since execution
+  //! SFML clock object to track the time since execution
   sf::Clock global_time;
-};
+}; // class SystemEngine
 
-} // namespace system
+} // namespace rpg_system
 
 #endif // SYSTEM_HPP

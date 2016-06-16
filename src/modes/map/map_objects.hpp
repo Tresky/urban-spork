@@ -122,9 +122,10 @@ private:
 
   private_map_mode::MapSprite* visible_hero;
 
-  std::map<unsigned int, MapObject*> all_objects;
+  std::vector<MapObject*> all_objects;
+  // std::map<unsigned int, MapObject*> all_objects;
 
-  // std::vector<MapObject*> ground_objects;
+  std::vector<MapObject*> ground_objects;
   //
   // std::vector<MapObject*> wall_objects;
   //

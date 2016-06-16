@@ -28,6 +28,7 @@ MapMode::MapMode(const string& _lua_filepath)
   , delta_y(0)
   , tile_supervisor(nullptr)
   , temp(nullptr)
+  , enemy(nullptr)
 {
   IF_PRINT_DEBUG(MAP_MODE_DEBUG) << "MapMode constructor called" << endl;
 
@@ -35,6 +36,7 @@ MapMode::MapMode(const string& _lua_filepath)
 
   tile_supervisor = new private_map_mode::TileSupervisor();
   object_supervisor = new private_map_mode::ObjectSupervisor();
+
   temp = new private_map_mode::MapSprite(MapObjectDrawLayer::GROUND_OBJECT);
   if (!temp->LoadAnimations("data/gchar/actor0-walking.lua"))
   {
@@ -46,8 +48,21 @@ MapMode::MapMode(const string& _lua_filepath)
   temp->SetDirection(DIRECTION_SOUTH);
   temp->SetCenterPosition(128, 128);
   temp->SetDimensions(32, 32);
-  object_supervisor->RegisterObject(temp);
+  // object_supervisor->RegisterObject(temp);
   camera = temp;
+
+  enemy = private_map_mode::EnemySprite::Create();
+  if (!enemy->LoadAnimations("data/gchar/enemy0-walking.lua"))
+  {
+    PRINT_ERROR << "Failed to load animations for character" << endl;
+    delete enemy;
+    enemy = nullptr;
+  }
+  enemy->SetCurrentAnimation("idle-south");
+  enemy->SetDirection(DIRECTION_SOUTH);
+  enemy->SetCenterPosition(320, 320);
+  enemy->SetDimensions(32, 32);
+  // object_supervisor->RegisterObject(enemy);
 
   //camera_timer.InitTimer(0, 1);
 
@@ -86,8 +101,6 @@ void MapMode::Update()
 {
   if (!camera)
     return;
-
-  camera->Update();
 
   UpdateCameraFrame();
 
@@ -244,8 +257,6 @@ void MapMode::Draw()
 
   tile_supervisor->DrawLayers(frame, MapLayerType::WALL);
   tile_supervisor->DrawLayers(frame, MapLayerType::SKY);
-
-  //DrawGrid();
 }
 
 void MapMode::DrawGrid()
@@ -501,15 +512,6 @@ bool MapMode::LoadTileset(const string& _lua_filepath)
   }
   return true;
 }
-//
-// sf::Vector2i MapMode::GetCameraOffset()
-// {
-//   sf::Vector2i position = camera->GetPosition();
-//   sf::Vector2i temp;
-//   temp.x = static_cast<int>(position.x) % 32;
-//   temp.y = static_cast<int>(position.y) % 32;
-//   return temp;
-// }
 
 void MapMode::UpdateCameraFrame()
 {

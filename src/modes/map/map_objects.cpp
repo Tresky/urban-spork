@@ -10,12 +10,16 @@ namespace private_map_mode
 {
 
 MapObject::MapObject(MapObjectDrawLayer _layer)
-  : object_id(0)
+  : object_id(-1)
   , tile_position(0, 0)
   , dimensions(0, 0)
   , draw_layer(_layer)
   , visible(true)
-{}
+{
+  ObjectSupervisor* obj_sup = MapMode::CurrentInstance()->GetObjectSupervisor();
+  object_id = obj_sup->GenerateObjectId();
+  obj_sup->RegisterObject(this);
+}
 
 bool MapObject::ShouldDraw()
 {
@@ -129,21 +133,23 @@ ObjectSupervisor::~ObjectSupervisor()
 
 unsigned int ObjectSupervisor::GenerateObjectId()
 {
-  //cout << "ID_COUNT: " << id_counter << endl;
   int temp = 0;
   if (reusable_ids.empty())
-    temp = id_counter++;
+    temp = all_objects.size();
   else
   {
     temp = reusable_ids.front();
     reusable_ids.pop();
   }
+
   return temp;
 }
 
 MapObject* ObjectSupervisor::GetObject(const unsigned int _id)
 {
-  if (_id >= all_objects.size() || !all_objects[_id])
+  if (_id >= all_objects.size() ||
+      _id < 0 ||
+      !all_objects[_id])
   {
     IF_PRINT_DEBUG(MAP_MODE_DEBUG) << "Requested object id invalid" << endl;
     return nullptr;
@@ -154,16 +160,31 @@ MapObject* ObjectSupervisor::GetObject(const unsigned int _id)
 
 void ObjectSupervisor::RegisterObject(MapObject* _object)
 {
-  if (!_object)
+  if (!_object ||
+      _object->GetObjectId() < 0 ||
+      _object->GetObjectId() > all_objects.size())
     return;
 
-  int id = GenerateObjectId();
-  all_objects[id] = _object;
+  int id = _object->GetObjectId();
+
+  if (id == all_objects.size())
+    all_objects.push_back(_object);
+  else
+    all_objects[id] = _object;
+
+  switch (_object->GetObjectDrawLayer())
+  {
+    case GROUND_OBJECT:
+      ground_objects.push_back(_object);
+      break;
+  }
 }
 
 void ObjectSupervisor::DeleteObject(const unsigned int _id)
 {
-  if (_id >= all_objects.size() || !all_objects[_id])
+  if (_id >= all_objects.size() ||
+      _id < 0 ||
+      !all_objects[_id])
     return;
 
   delete all_objects[_id];
@@ -251,14 +272,14 @@ CollisionType ObjectSupervisor::DetectCollision(MapObject* _object, const float 
 
 void ObjectSupervisor::Update()
 {
-
+  for (auto obj : ground_objects)
+    obj->Update();
 }
 
 void ObjectSupervisor::DrawObjects()
 {
-  map<unsigned int, MapObject*>::iterator iter = all_objects.begin();
-  for (; iter != all_objects.end(); iter++)
-    iter->second->Draw();
+  for (auto obj : all_objects)
+    obj->Draw();
 }
 
 

@@ -2,6 +2,7 @@
 #include "map_sprites.hpp"
 
 #include "map_mode.hpp"
+#include "../../core/video_manager.hpp"
 #include "../../core/script_read.hpp"
 #include "../../core/system.hpp"
 #include "../../core/image.hpp"
@@ -354,11 +355,69 @@ void MapSprite::Draw()
     float x = map_mode->GetScreenXCoordinate(GetPosition().x);
     float y = map_mode->GetScreenYCoordinate(GetPosition().y);
 
+    animations[current_animation]->SetPosition(x, y);
+    animations[current_animation]->Draw();
+  }
+}
+
+EnemySprite::EnemySprite()
+  : MapSprite(GROUND_OBJECT)
+  , state(State::HOSTILE)
+{
+
+}
+
+EnemySprite::~EnemySprite()
+{}
+
+EnemySprite* EnemySprite::Create()
+{
+  return new EnemySprite();
+}
+
+void EnemySprite::Update()
+{
+  switch (state)
+  {
+    case State::SPAWNING:
+
+      break;
+    case State::HOSTILE:
+      /// some stuffs
+      MapSprite::Update();
+
+      break;
+    case State::DEAD:
+    default:
+      break;
+  }
+}
+
+void EnemySprite::Draw()
+{
+  if (MapObject::ShouldDraw() &&
+      !IsDead() &&
+      !current_animation.empty())
+  {
+    MapMode* map_mode = MapMode::CurrentInstance();
+
+    float x = map_mode->GetScreenXCoordinate(GetPosition().x);
+    float y = map_mode->GetScreenYCoordinate(GetPosition().y);
+
     //cout << "X: " << x << " :: Y: " << y << endl;
     //cout << "POS: " << GetPosition().x << " :: " << GetPosition().y << endl;
 
     animations[current_animation]->SetPosition(x, y);
     animations[current_animation]->Draw();
+
+    sf::RectangleShape rect(sf::Vector2f(32, 32));
+    rect.setOutlineColor(sf::Color::Red);
+    rect.setOutlineThickness(3.f);
+    rect.setPosition(x, y);
+    // rpg_video::VideoManager->DrawShape(rect);
+
+    // MapRectangle rect = GetScreenCollisionRectangle(x, y);
+    // VideoManager->DrawRectangle(rect.right - rect.left, rect.bottom - rect.top, Color(1.0f, 0.0f, 0.0f, 0.6f));
   }
 }
 

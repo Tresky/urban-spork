@@ -15,6 +15,7 @@ namespace private_map_mode
 {
 class VirtualSprite;
 class MapSprite;
+class EnemySprite;
 class TileSupervisor;
 class ObjectSupervisor;
 class MapFrame;
@@ -136,6 +137,7 @@ private:
   //sf::IntRect frame_bounds;
 
   private_map_mode::MapSprite* temp;
+  private_map_mode::EnemySprite* enemy;
 };
 
 }
