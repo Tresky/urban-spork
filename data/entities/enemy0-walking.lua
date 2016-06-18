@@ -1,5 +1,5 @@
 animations = {}
-animations.filepath = "data/gchar/actor0.png"
+animations.filepath = "data/entities/enemy0.png"
 animations.num_animations = 8
 
 -- Walking Down Animation

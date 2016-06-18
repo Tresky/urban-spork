@@ -12,7 +12,7 @@ INCS = -I/usr/local/include
 
 #### OBJECT FILES ####
 # Engine Objects
-_ENG_OBJ = system.o mode_manager.o video_manager.o script.o script_read.o resources.o image.o input.o
+_ENG_OBJ = system.o mode_manager.o video_manager.o script.o script_read.o resources.o image.o input.o lua_bindings.o
 ENG_OBJ = $(patsubst %, $(ODIR)/%, $(_ENG_OBJ))
 
 # Global Objects

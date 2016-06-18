@@ -37,31 +37,31 @@ MapMode::MapMode(const string& _lua_filepath)
   tile_supervisor = new private_map_mode::TileSupervisor();
   object_supervisor = new private_map_mode::ObjectSupervisor();
 
-  temp = new private_map_mode::MapSprite(MapObjectDrawLayer::GROUND_OBJECT);
-  if (!temp->LoadAnimations("data/gchar/actor0-walking.lua"))
-  {
-    PRINT_ERROR << "Failed to load animations for character" << endl;
-    delete temp;
-    temp = nullptr;
-  }
-  temp->SetCurrentAnimation("idle-south");
-  temp->SetDirection(DIRECTION_SOUTH);
-  temp->SetCenterPosition(128, 128);
-  temp->SetDimensions(32, 32);
-  // object_supervisor->RegisterObject(temp);
-  camera = temp;
+  // temp = new private_map_mode::MapSprite(MapObjectDrawLayer::GROUND_OBJECT);
+  // if (!temp->LoadAnimations("data/entities/actor0-walking.lua"))
+  // {
+  //   PRINT_ERROR << "Failed to load animations for character" << endl;
+  //   delete temp;
+  //   temp = nullptr;
+  // }
+  // temp->SetCurrentAnimation("idle-south");
+  // temp->SetDirection(DIRECTION_SOUTH);
+  // temp->SetCenterPosition(128, 128);
+  // temp->SetDimensions(32, 32);
+  // // object_supervisor->RegisterObject(temp);
+  // camera = temp;
 
-  enemy = private_map_mode::EnemySprite::Create();
-  if (!enemy->LoadAnimations("data/gchar/enemy0-walking.lua"))
-  {
-    PRINT_ERROR << "Failed to load animations for character" << endl;
-    delete enemy;
-    enemy = nullptr;
-  }
-  enemy->SetCurrentAnimation("idle-south");
-  enemy->SetDirection(DIRECTION_SOUTH);
-  enemy->SetCenterPosition(320, 320);
-  enemy->SetDimensions(32, 32);
+  // enemy = private_map_mode::EnemySprite::Create();
+  // if (!enemy->LoadAnimations("data/entities/enemy0-walking.lua"))
+  // {
+  //   PRINT_ERROR << "Failed to load animations for character" << endl;
+  //   delete enemy;
+  //   enemy = nullptr;
+  // }
+  // enemy->SetCurrentAnimation("idle-south");
+  // enemy->SetDirection(DIRECTION_SOUTH);
+  // enemy->SetCenterPosition(320, 320);
+  // enemy->SetDimensions(32, 32);
   // object_supervisor->RegisterObject(enemy);
 
   //camera_timer.InitTimer(0, 1);
@@ -230,27 +230,16 @@ void MapMode::Update()
 
 float MapMode::GetScreenXCoordinate(float _tile_position_x) const
 {
-    _tile_position_x = _tile_position_x - frame.screen_edges.left;
-
-
-    // _tile_position_x = (_tile_position_x - frame.screen_edges.left)
-    //     * 1024.f / 64.f;
-    // _tile_position_x = std::floor(_tile_position_x / 10) * 10;//  FloorToFloatMultiple(tile_position_x, GetMapPixelXLength());
-    return _tile_position_x;
+    return _tile_position_x - frame.screen_edges.left;
 }
 
 float MapMode::GetScreenYCoordinate(float _tile_position_y) const
 {
-    _tile_position_y = _tile_position_y - frame.screen_edges.top;
-      //* 768 / private_map_mode::SCREEN_GRID_Y_LENGTH;
-    //tile_position_y = FloorToFloatMultiple(tile_position_y, GetMapPixelYLength());
-    //_tile_position_y = rpg_video::VideoManager->GetScreenHeight() / 2 - _tile_position_y;
-    return _tile_position_y;
+    return _tile_position_y - frame.screen_edges.top;
 }
 
 void MapMode::Draw()
 {
-
   tile_supervisor->DrawLayers(frame, MapLayerType::GROUND);
 
   object_supervisor->DrawObjects();
@@ -262,39 +251,8 @@ void MapMode::Draw()
 void MapMode::DrawGrid()
 {
   rpg_video::VideoManager->DrawGrid(32, 32,
-                         1024, 768,
-                         32, 32, 1, sf::Color::Red);
-
-
-  // float x = _map_frame.tile_x_offset * GRID_LENGTH;
-  // float y = _map_frame.tile_y_offset * GRID_LENGTH;
-  // VideoManager->Move(x, y);
-  //
-  // // Calculate the dimensions of the grid.
-  // float left = VideoManager->GetCoordSys().GetLeft();
-  // float right = VideoManager->GetCoordSys().GetRight();
-  // float top = VideoManager->GetCoordSys().GetTop();
-  // float bottom = VideoManager->GetCoordSys().GetBottom();
-  //
-  // // Calculate the dimensions of the grid's cells.
-  // float width_cell_horizontal = (right - left) / SCREEN_GRID_X_LENGTH;
-  // float width_cell_vertical = (bottom - top) / SCREEN_GRID_Y_LENGTH;
-  //
-  // // Increase the dimensions of the grid to prevent clipping around its edges.
-  // left -= (width_cell_horizontal * 2.0f);
-  // right += (width_cell_horizontal * 2.0f);
-  // top -= (width_cell_vertical * 2.0f);
-  // bottom += (width_cell_vertical * 2.0f);
-  //
-  // // Draw the collision grid.
-  // Color color = Color(0.0f, 0.0f, 0.5f, 0.2f);
-  // VideoManager->DrawGrid(left, top, right, bottom, width_cell_horizontal, width_cell_vertical, 2, color);
-  //
-  // // Draw the tile grid.
-  // color = Color(0.5f, 0.0f, 0.0f, 0.3f);
-  // VideoManager->DrawGrid(left, top, right, bottom, width_cell_horizontal * 2.0f, width_cell_vertical * 2.0f, 2, color);
-  //
-  // VideoManager->PopMatrix();
+                                    1024, 768,
+                                    32, 32, 1, sf::Color::Red);
 }
 
 void MapMode::Reset()
@@ -311,10 +269,12 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
     return false;
   }
 
-  cout << "---------- Tilemap Information ----------" << endl;
-  cout << "| File: " << _lua_filepath << endl;
+  // cout << "---------- Tilemap Information ----------" << endl;
+  // cout << "| File: " << _lua_filepath << endl;
 
   map_script.OpenTable("map_data");
+
+  string script_path = map_script.ReadData<string>("script_path", "");
 
   int map_width = map_script.ReadData<int>("num_cols", -1);
   int map_height = map_script.ReadData<int>("num_rows", -1);
@@ -324,12 +284,12 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
     return false;
   }
 
-  string name = map_script.ReadData<string>("name", "");
-  cout << "| Name: " << name << endl;
-  cout << "|" << endl;
-
-  cout << "| Dimensions: " << map_width << " x " << map_height << endl;
-  cout << "|\n---------- Tileset Information ----------" << endl;
+  // string name = map_script.ReadData<string>("name", "");
+  // cout << "| Name: " << name << endl;
+  // cout << "|" << endl;
+  //
+  // cout << "| Dimensions: " << map_width << " x " << map_height << endl;
+  // cout << "|\n---------- Tileset Information ----------" << endl;
 
   if (!tile_supervisor)
     tile_supervisor = new private_map_mode::TileSupervisor();
@@ -337,7 +297,7 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
   map_script.OpenTable("tilesets");
   int num_tilesets = map_script.ReadData<int>("count", -1);
 
-  cout << "| Tileset Count: " << num_tilesets << endl;
+  // cout << "| Tileset Count: " << num_tilesets << endl;
 
   if (num_tilesets < 0)
   {
@@ -348,7 +308,7 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
   for (int i = 0; i < num_tilesets; ++i)
   {
     string path = map_script.ReadData<string>(i, "");
-    cout << "| " << i << ". " << path << endl;
+    // cout << "| " << i << ". " << path << endl;
     if (path.empty() || !LoadTileset(path))
     {
       PRINT_ERROR << "Failed to load tileset" << endl;
@@ -357,13 +317,13 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
   }
   map_script.CloseTable();
 
-  cout << "|\n----------- Layer Information -----------" << endl;
+  // cout << "|\n----------- Layer Information -----------" << endl;
 
   // Load in the layer data
   map_script.OpenTable("layers");
   int num_layers = map_script.ReadData<int>("num_layers", -1);
 
-  cout << "| Layer Count: " << num_layers << endl;
+  // cout << "| Layer Count: " << num_layers << endl;
   if (num_layers < 0)
   {
     PRINT_ERROR << "No layers found in map script." << endl;
@@ -395,21 +355,21 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
       continue;
     }
 
-    cout << "| " << l << ". " << str_type << endl;
+    // cout << "| " << l << ". " << str_type << endl;
 
     private_map_mode::MapLayer layer(type);
     for (int row = 0; row < map_height; ++row)
     {
       map_script.OpenTableIntegers(row + 1);
-      cout << "|\t";
+      // cout << "|\t";
       vector<int> temp;
       for (int col = 0; col < map_width; ++col)
       {
         int id = map_script.ReadData<int>(col + 1, -1);
-        cout << setw(3) << id << " ";
+        // cout << setw(3) << id << " ";
         temp.push_back(id);
       }
-      cout << endl;
+      // cout << endl;
       layer.tiles.push_back(temp);
       map_script.CloseTable();
     }
@@ -420,12 +380,12 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
   }
   map_script.CloseTable();
 
-  cout << "|\n--------- Collision Information ---------" << endl;
+  // cout << "|\n--------- Collision Information ---------" << endl;
   // Load object data
   if (!object_supervisor)
     object_supervisor = new private_map_mode::ObjectSupervisor();
 
-  cout << "| " << "Static Collision Matrix" << endl;
+  // cout << "| " << "Static Collision Matrix" << endl;
 
   map_script.OpenTable("collision");
 
@@ -438,21 +398,49 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
   for (int i = 0; i < map_height; ++i)
   {
     map_script.OpenTableIntegers(i + 1);
-    cout << "|\t";
+    // cout << "|\t";
     vector<int> temp;
     for (int j = 0; j < map_width; ++j)
     {
       int value = map_script.ReadData<int>(j + 1, -1);
-      cout << setw(2) << value << " ";
+      // cout << setw(2) << value << " ";
       temp.push_back(value);
     }
     object_supervisor->collision_grid.push_back(temp);
-    cout << endl;
+    // cout << endl;
     map_script.CloseTable();
   }
-  map_script.CloseTable();
 
-  cout << "-----------------------------------------" << endl;
+  if (map_script.HasError())
+  {
+      map_script.PrintErrors();
+      return false;
+  }
+
+  map_script.CloseTable();
+  map_script.CloseFile();
+
+  // cout << "-----------------------------------------" << endl;
+
+  if (script_path.empty())
+    return false;
+
+  if (!map_script.OpenFile(script_path))
+  {
+    PRINT_ERROR << "Failed to open tilemap script: " << script_path << endl;
+    return false;
+  }
+
+  IF_PRINT_DEBUG(MAP_MODE_DEBUG) << "Loading tilemap functionality script" << endl;
+
+  map_script.CallFunction("Load");
+  if (map_script.HasError())
+  {
+      map_script.PrintErrors();
+      return false;
+  }
+
+  map_script.CloseFile();
 
   return true;
 }
@@ -471,8 +459,8 @@ bool MapMode::LoadTileset(const string& _lua_filepath)
   string image_name = tileset_script.ReadData<string>("name", "");
   string image_path = tileset_script.ReadData<string>("image_path", "");
 
-  cout << "|\tImage Name: " << image_name << endl;
-  cout << "|\tImage Path: " << image_path << endl;
+  // cout << "|\tImage Name: " << image_name << endl;
+  // cout << "|\tImage Path: " << image_path << endl;
 
   int margin = tileset_script.ReadData<int>("margin", -1);
   int spacing = tileset_script.ReadData<int>("spacing", -1);
@@ -482,9 +470,9 @@ bool MapMode::LoadTileset(const string& _lua_filepath)
   int tile_width = tileset_script.ReadData<int>("tile_width", -1);
   int tile_height = tileset_script.ReadData<int>("tile_height", -1);
 
-  cout << "|\tMargin / Spacing: " << margin << " / " << spacing << endl;
-  cout << "|\tSize: " << num_cols << " x " << num_rows << endl;
-  cout << "|\tTile Size: " << tile_width << " x " << tile_height << endl;
+  // cout << "|\tMargin / Spacing: " << margin << " / " << spacing << endl;
+  // cout << "|\tSize: " << num_cols << " x " << num_rows << endl;
+  // cout << "|\tTile Size: " << tile_width << " x " << tile_height << endl;
 
   if (tileset_script.HasError())
   {
@@ -501,7 +489,7 @@ bool MapMode::LoadTileset(const string& _lua_filepath)
                             32, 32);
 
       int loaded_id = rpg_resource::ResourceManager->LoadImageRect(image_path, tile_rect);
-      if (loaded_id >= 0) // Success
+      if (loaded_id >= 0)
         tile_supervisor->tile_ids.push_back(loaded_id);
       else
       {
@@ -517,16 +505,9 @@ void MapMode::UpdateCameraFrame()
 {
   sf::Vector2i position = camera->GetCenterPosition();
 
-  // if (camera_timer.IsRunning())
-  // {
-  //   position.x += (1.0f - camera_timer.PercentComplete()) * delta_x;
-  //   position.y += (1.0f - camera_timer.PercentComplete()) * delta_y;
-  // }
-
   frame.tile_x_offset = static_cast<int>(position.x) % 32;
   frame.tile_y_offset = static_cast<int>(position.y) % 32;
 
-  // The starting row and column of tiles to draw is determined by the map camera's position
   frame.tile_x_start = static_cast<signed int>(position.x / 32 - rpg_video::VideoManager->GetScreenWidth() / 64) - 1;
   frame.tile_y_start = static_cast<signed int>(position.y / 32 - rpg_video::VideoManager->GetScreenHeight() / 64) - 1;
 
@@ -535,140 +516,8 @@ void MapMode::UpdateCameraFrame()
   frame.screen_edges.top = (position.y) - rpg_video::VideoManager->GetScreenHeight() / 2;
   frame.screen_edges.bottom = (position.y) + rpg_video::VideoManager->GetScreenHeight() / 2;
 
-    // Check for boundary conditions and re-adjust as necessary so we don't draw outside the map area
-
-    // Usually the map centers on the camera's position, but when the camera becomes too close to
-    // the edges of the map, we need to modify the drawing properties of the frame.
-
-    // Reinit map corner check members
-    // _camera_x_in_map_corner = false;
-    // _camera_y_in_map_corner = false;
-
-    // Determine the number of rows and columns of tiles that need to be drawn
-    frame.num_draw_x_axis = static_cast<int>(rpg_video::VideoManager->GetScreenWidth() / 32) + 3;
-    frame.num_draw_y_axis = static_cast<int>(rpg_video::VideoManager->GetScreenHeight() / 32) + 3;
-
-    //cout << "START: (" << frame.tile_x_start << ", " << frame.tile_y_start << ")" << endl;
-    //cout << "NUMBR: (" << frame.num_draw_x_axis << ", " << frame.num_draw_y_axis << ")" << endl;
-
-    //cout << rpg_system::SystemManager->GetUpdateTime() << endl;
-    // if (rpg_system::SystemManager->GetUpdateTime() == 16)
-    // {
-    //   cout << "===============Camera Report===============" << endl;
-    //   cout << "| Position: (" << position.x << ", " << position.y << ")" << endl;
-    //   cout << "| TileStart: (" << frame.tile_x_start << ", " << frame.tile_y_start << ")" << endl;
-    //   cout << "| Offset: (" << frame.tile_x_offset << ", " << frame.tile_y_offset << ")" << endl;
-    //   cout << "===========================================" << endl;
-    // }
-
-  // Reinit map corner check members
-  // camera_x_in_map_corner = false;
-  // camera_y_in_map_corner = false;
-
-  // Determine the number of rows and columns of tiles that need to be drawn
-  //frame.num_draw_x_axis = TILES_ON_X_AXIS + 1;
-  //frame.num_draw_y_axis = TILES_ON_Y_AXIS + 1;
-
-  // Camera exceeds the left boundary of the map
-  // if (frame.tile_x_start <= 0) {
-  //     frame.tile_x_start = 0;
-  //     frame.tile_x_offset = 0;//vt_utils::FloorToFloatMultiple(1.0f, _pixel_length_x);
-  //     frame.screen_edges.left = 0.0f;
-  //     frame.screen_edges.right = 1024;//SCREEN_GRID_X_LENGTH;
-  //     //frame.num_draw_x_axis = //TILES_ON_X_AXIS;
-  //     //camera_x_in_map_corner = true;
-  // }
-  // Camera exceeds the right boundary of the map
-  // else if(frame.tile_x_start +  >= tile_supervisor->_num_tile_on_x_axis) {
-  //     frame.tile_x_start = static_cast<int16_t>(_tile_supervisor->_num_tile_on_x_axis - TILES_ON_X_AXIS);
-  //     frame.tile_x_offset = vt_utils::FloorToFloatMultiple(1.0f, _pixel_length_x);
-  //     frame.screen_edges.right = static_cast<float>(_object_supervisor->_num_grid_x_axis);
-  //     frame.screen_edges.left = _map_frame.screen_edges.right - SCREEN_GRID_X_LENGTH;
-  //     frame.num_draw_x_axis = TILES_ON_X_AXIS;
-  //     camera_x_in_map_corner = true;
-  // }
-
-  // Camera exceeds the top boundary of the map
-  // if (frame.tile_y_start <= 0) {
-  //     frame.tile_y_start = 0;
-  //     frame.tile_y_offset = 0;//vt_utils::FloorToFloatMultiple(2.0f, _pixel_length_y);
-  //     frame.screen_edges.top = 0.0f;
-  //     frame.screen_edges.bottom = 768;//SCREEN_GRID_Y_LENGTH;
-  //     //_map_frame.num_draw_y_axis = TILES_ON_Y_AXIS;
-  //     //camera_y_in_map_corner = true;
-  // }
-  // Camera exceeds the bottom boundary of the map
-  // else if(_map_frame.tile_y_start + TILES_ON_Y_AXIS >= _tile_supervisor->_num_tile_on_y_axis) {
-  //     _map_frame.tile_y_start = static_cast<int16_t>(_tile_supervisor->_num_tile_on_y_axis - TILES_ON_Y_AXIS);
-  //     _map_frame.tile_y_offset = vt_utils::FloorToFloatMultiple(2.0f, _pixel_length_y);
-  //     _map_frame.screen_edges.bottom = static_cast<float>(_object_supervisor->_num_grid_y_axis);
-  //     _map_frame.screen_edges.top = _map_frame.screen_edges.bottom - SCREEN_GRID_Y_LENGTH;
-  //     _map_frame.num_draw_y_axis = TILES_ON_Y_AXIS;
-  //     _camera_y_in_map_corner = true;
-  // }
-  //
-  // Update parallax effects now that map corner members are up to date
-  // if (camera_timer.IsRunning())
-  // {
-  //   // Inform the effect supervisor about camera movement.
-  //   float duration = (float)camera_timer.GetDuration();
-  //   float time_elapsed = (float)rpg_system::SystemManager->GetUpdateTime();
-  //   // float x_parallax = !_camera_x_in_map_corner ?
-  //   //                    _delta_x * time_elapsed / duration
-  //   //                    / SCREEN_GRID_X_LENGTH * VIDEO_STANDARD_RES_WIDTH :
-  //   //                    0.0f;
-  //   // float y_parallax = !_camera_y_in_map_corner ?
-  //   //                    _delta_y * time_elapsed / duration
-  //   //                    / SCREEN_GRID_Y_LENGTH * VIDEO_STANDARD_RES_HEIGHT :
-  //   //                    0.0f;
-  //
-  //   //GetEffectSupervisor().AddParallax(x_parallax, y_parallax);
-  //   //GetIndicatorSupervisor().AddParallax(x_parallax, y_parallax);
-  // }
-
-  // frame.tile_x_start = static_cast<int>(position.x / 32) - rpg_video::VideoManager->GetScreenWidth() / 64;
-  // //if (frame.tile_x_start < 0)
-  //   //frame.tile_x_start = 0;
-  // frame.tile_y_start = static_cast<int>(position.y / 32) - rpg_video::VideoManager->GetScreenHeight() / 64;
-  //
-  // frame.tile_x_offset = static_cast<int>(position.x) % 32;
-  // frame.tile_y_offset = static_cast<int>(position.y) % 32;
-  //
-  // frame.num_draw_x_axis = static_cast<int>(rpg_video::VideoManager->GetScreenWidth() / 32) + 2;
-  // frame.num_draw_y_axis = static_cast<int>(rpg_video::VideoManager->GetScreenHeight() / 32) + 2;
-  //
-  // frame.screen_edges.left = (position.x) - rpg_video::VideoManager->GetScreenWidth() / 32;
-  // frame.screen_edges.right = (position.x) + rpg_video::VideoManager->GetScreenWidth() / 32;
-  // frame.screen_edges.top = (position.y) - rpg_video::VideoManager->GetScreenHeight() / 32;
-  // frame.screen_edges.bottom = (position.y) + rpg_video::VideoManager->GetScreenHeight() / 32;
-
-  //cout << "LEFT: " << (position.x) - rpg_video::VideoManager->GetScreenWidth() / 2 << endl;
+  frame.num_draw_x_axis = static_cast<int>(rpg_video::VideoManager->GetScreenWidth() / 32) + 3;
+  frame.num_draw_y_axis = static_cast<int>(rpg_video::VideoManager->GetScreenHeight() / 32) + 3;
 }
-
-// sf::IntRect MapMode::GetCameraBounds()
-// {
-//   // if (tile_dimensions.x == 0 || tile_dimensions.y == 0)
-//   //   return sf::IntRect(0, 0, 0, 0);
-//   sf::Vector2i position = camera->GetPosition();
-//
-//   int tile_x = static_cast<int>(position.x / 32) - rpg_video::VideoManager->GetScreenWidth() / 64;
-//   int tile_y = static_cast<int>(position.y / 32) - rpg_video::VideoManager->GetScreenHeight() / 64;
-//
-//   /// If the whole size of the camera is not divisible by the tile
-//   /// size, we need to add one more tile to the bounds.
-//   /// We also have to add one to the numbers to make the tile count
-//   /// begin at 1 as opposed to 0.
-//   int tiles_across = static_cast<int>(rpg_video::VideoManager->GetScreenWidth() / 32) + 2;
-//   int tiles_down = static_cast<int>(rpg_video::VideoManager->GetScreenHeight() / 32) + 2;
-//
-//   /// If we are not perfectly positioned over the tiles, we need to
-//   /// add one more tile to the frame to make sure no black is shown.
-//   if (static_cast<int>(position.x) % 32 != 0)
-//     ++tiles_across;
-//   if (static_cast<int>(position.y) % 32 != 0)
-//     ++tiles_down;
-//
-//   return sf::IntRect(tile_x, tile_y, tiles_across, tiles_down);
-// }
 
 }

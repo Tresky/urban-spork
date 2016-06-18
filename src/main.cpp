@@ -21,6 +21,8 @@ using namespace rpg_input;
 bool InitializeSingletons();
 void DeconstructSingletons();
 
+void BindEngineCode();
+
 int main()
 {
   atexit(DeconstructSingletons);
@@ -34,7 +36,7 @@ int main()
 
   GlobalManager->NewGame();
 
-  ModeManager->Push(new rpg_map_mode::MapMode("data/maps/test.lua"));
+  ModeManager->Push(new rpg_map_mode::MapMode("data/maps/test-map.lua"));
 
   sf::RectangleShape rect(sf::Vector2f(32, 32));
   rect.setOrigin(16, 16);
@@ -120,6 +122,8 @@ bool InitializeSingletons()
     PRINT_ERROR << "Failed to initialize InputEngine singleton" << endl;
     return false;
   }
+
+  BindEngineCode();
 
   return true;
 }

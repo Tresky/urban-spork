@@ -292,12 +292,12 @@ protected:
 /**
  * \class SystemEngine
  * \brief Global singleton class that manages all of
- * the SystemTimers throughout the game.
+ * the SystemTimer objects throughout the game.
  *
  * \ingroup SystemEngine
  *
  * This Singleton class is very simple and only organizes
- * and handles the SystemTimers within the application.
+ * and handles the SystemTimer objects within the application.
  * Alongside this, there are a few smaller functionalities
  * that really didn't fit into any other system.
  *

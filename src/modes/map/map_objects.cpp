@@ -254,8 +254,6 @@ CollisionType ObjectSupervisor::DetectCollision(MapObject* _object, const float 
   // TPNOTE: Make vector selection dynamic for objects
   std::vector<MapObject*> objects = ground_objects;//_GetObjectsFromDrawLayer(object->GetObjectDrawLayer());
 
-  std::vector<rpg_map_mode::private_map_mode::MapObject*>::iterator collision_object, it_end;
-  // for (collision_object = objects.begin(); collision_object != objects.end(); ++collision_object) {
   for (auto collision_object : objects)
   {
     // Check if the object exists and has the no_collision property enabled

@@ -18,7 +18,7 @@ VirtualSprite::VirtualSprite(MapObjectDrawLayer _layer)
   , movement_speed(8.f)
   , moving(false)
   , has_moved(false)
-  , direction(DIRECTION_INVALID)
+  , direction(DIRECTION_SOUTH)
 {
   object_type = VIRTUAL_TYPE;
 }
@@ -100,13 +100,13 @@ void VirtualSprite::SetNextPosition()
   int distance_moved = CalculateDistanceMoved();
 
   // Move the sprite the appropriate distance in the appropriate Y and X direction
-  if(direction == DIRECTION_NORTH || direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST)
+  if (direction == DIRECTION_NORTH || direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST)
     next_pos_y -= distance_moved;
-  else if(direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_SOUTHEAST)
+  else if (direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_SOUTHEAST)
     next_pos_y += distance_moved;
-  if(direction == DIRECTION_WEST || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_NORTHWEST)
+  if (direction == DIRECTION_WEST || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_NORTHWEST)
     next_pos_x -= distance_moved;
-  else if(direction == DIRECTION_EAST || direction == DIRECTION_SOUTHEAST || direction == DIRECTION_NORTHEAST)
+  else if (direction == DIRECTION_EAST || direction == DIRECTION_SOUTHEAST || direction == DIRECTION_NORTHEAST)
     next_pos_x += distance_moved;
 
   // When not moving, do not check anything else.
@@ -273,6 +273,11 @@ MapSprite::MapSprite(MapObjectDrawLayer _layer)
 MapSprite::~MapSprite()
 {
   // DELETE ANIMATIONS LATER
+}
+
+MapSprite* MapSprite::Create(const int _layer)
+{
+    return new MapSprite(static_cast<MapObjectDrawLayer>(_layer));
 }
 
 bool MapSprite::LoadAnimations(const std::string& _filepath)

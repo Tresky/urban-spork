@@ -3,6 +3,8 @@ map_data.name = "Test Map"
 map_data.num_cols = 22
 map_data.num_rows = 30
 
+map_data.script_path = "data/maps/test-script.lua"
+
 map_data.tilesets = {}
 map_data.tilesets.count = 1
 map_data.tilesets[0] = "data/maps/tileset.lua"

@@ -81,6 +81,8 @@ public:
 
   ~MapSprite();
 
+  static MapSprite* Create(const int _layer);
+
   bool LoadAnimations(const std::string& _filepath);
 
   void SetCurrentAnimation(const std::string& _current_animation)

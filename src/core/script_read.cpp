@@ -1,14 +1,15 @@
 #include "../utils/globals.hpp"
+
 #include "script_read.hpp"
 
-using namespace luabridge;
-
-// Script namespace
 namespace rpg_script
 {
 
+/********************************
+ * ReadScript Class Definitions *
+ ********************************/
 ReadScript::ReadScript()
-  : L(ScriptManager->GetLuaState())
+  : L(ScriptManager->GetGlobalState())
 {}
 
 ReadScript::~ReadScript()
@@ -31,9 +32,9 @@ bool ReadScript::OpenFile(const std::string& _filename)
     return false;
   }
 
-  // TODO: Need to check the actual filesystem for a real file.
+  // TPTODO: Need to check the actual filesystem for a real file.
 
-  // These return 0 on success, so the logic is backwards
+  // These return 0 on success, so the logic is backwards... dumb idea!
   if (luaL_loadfile(L, _filename.c_str()) || lua_pcall(L, 0, 0, 0))
   {
     errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "Script failed to open: " + _filename });
@@ -86,8 +87,6 @@ bool ReadScript::OpenTable(const std::string& _table_name)
 
 bool ReadScript::OpenTableIntegers(const int _key)
 {
-  ScriptError err;
-
   if (!IsOpen())
   {
     errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "No script open. Call OpenFile() first." });
@@ -121,4 +120,23 @@ void ReadScript::CloseTable()
     open_tables.pop();
 }
 
-} // Script namespace
+// This only calls global functions with no params
+void ReadScript::CallFunction(const std::string& _func_name)
+{
+  if (!IsOpen())
+  {
+    errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "No script open. Call OpenFile() first." });
+    return;
+  }
+
+  // TPTODO: This really isn't very good. Very limited. Improve functionality.
+  try {
+    getGlobal(L, _func_name.c_str())();
+  }
+  catch (luabridge::LuaException const& e)
+  {
+    errors.push(ScriptError { ScriptError::FUNCTION_FAILED, "LuaError: " + std::string(e.what())});
+  }
+}
+
+} // namespace rpg_script
