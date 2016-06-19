@@ -22,6 +22,7 @@ enum MapObjectDrawLayer
 namespace private_map_mode
 {
 class MapSprite;
+class MapZone;
 
 class MapObject
 {
@@ -129,9 +130,13 @@ public:
 
   CollisionType GetCollisionFromObjectType(MapObject* _object) const;
 
+  void AddZone(MapZone* _zone);
+
   void Update();
 
   void DrawObjects();
+
+  void DrawMapZones();
 private:
 
   unsigned int id_counter;
@@ -150,6 +155,8 @@ private:
   // std::vector<MapObject*> wall_objects;
   //
   // std::vector<MapObject*> sky_objects;
+
+  std::vector<MapZone*> map_zones;
 };
 
 }

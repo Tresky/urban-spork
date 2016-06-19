@@ -60,8 +60,12 @@ MapTransitionEvent* MapTransitionEvent::Create(const std::string& _id,
 
 void MapTransitionEvent::Launch()
 {
-  rpg_video::VideoManager->StartTransitionFadeOut(sf::Color::Black, 750);
-  done = false;
+  if (!active)
+  {
+    rpg_video::VideoManager->StartTransitionFadeOut(sf::Color::Black, 750);
+    done = false;
+    active = true;
+  }
 }
 
 bool MapTransitionEvent::Update()
@@ -76,6 +80,7 @@ bool MapTransitionEvent::Update()
       rpg_mode_manager::ModeManager->Pop();
       rpg_mode_manager::ModeManager->Push(mode, false, true);
       done = true;
+      active = false;
     }
     return true;
 }

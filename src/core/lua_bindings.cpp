@@ -4,6 +4,7 @@
 #include "../modes/map/map_mode.hpp"
 #include "../modes/map/map_sprites.hpp"
 #include "../modes/map/map_events.hpp"
+#include "../modes/map/map_zones.hpp"
 
 #include "global/global.hpp"
 
@@ -53,6 +54,13 @@ void BindEngineCode()
       .endClass()
       .deriveClass<MapTransitionEvent, MapEvent>("MapTransitionEvent")
         .addStaticFunction("Create", &MapTransitionEvent::Create)
+      .endClass()
+
+      .beginClass<MapZone>("MapZone")
+      .endClass()
+      .deriveClass<CameraZone, MapZone>("CameraZone")
+        .addStaticFunction("Create", &CameraZone::Create)
+        .addFunction("IsCameraInside", &CameraZone::IsCameraInside)
       .endClass()
     .endNamespace()
 

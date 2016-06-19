@@ -249,10 +249,14 @@ void MapMode::Draw()
 {
   tile_supervisor->DrawLayers(frame, MapLayerType::GROUND);
 
+  if (rpg_video::VideoManager->IsDebug())
+    object_supervisor->DrawMapZones();
+
   object_supervisor->DrawObjects();
 
   tile_supervisor->DrawLayers(frame, MapLayerType::WALL);
   tile_supervisor->DrawLayers(frame, MapLayerType::SKY);
+
 }
 
 void MapMode::DrawGrid()
@@ -522,8 +526,8 @@ void MapMode::UpdateCameraFrame()
   frame.tile_x_offset = static_cast<int>(position.x) % 32;
   frame.tile_y_offset = static_cast<int>(position.y) % 32;
 
-  frame.tile_x_start = static_cast<signed int>(position.x / 32 - rpg_video::VideoManager->GetScreenWidth() / 64) - 1;
-  frame.tile_y_start = static_cast<signed int>(position.y / 32 - rpg_video::VideoManager->GetScreenHeight() / 64) - 1;
+  frame.tile_x_start = static_cast<signed int>(position.x / 32 - rpg_video::VideoManager->GetScreenWidth() / 64);
+  frame.tile_y_start = static_cast<signed int>(position.y / 32 - rpg_video::VideoManager->GetScreenHeight() / 64);
 
   frame.screen_edges.left = (position.x) - rpg_video::VideoManager->GetScreenWidth() / 2;
   frame.screen_edges.right = (position.x) + rpg_video::VideoManager->GetScreenWidth() / 2;

@@ -36,7 +36,7 @@ int main()
 
   GlobalManager->NewGame();
 
-  ModeManager->Push(new rpg_map_mode::MapMode("test"), false, false);
+  ModeManager->Push(new rpg_map_mode::MapMode("small-island"), false, false);
 
   sf::RectangleShape rect(sf::Vector2f(32, 32));
   rect.setOrigin(16, 16);

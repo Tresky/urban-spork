@@ -1,6 +1,7 @@
 #include "../../utils/globals.hpp"
 #include "map_objects.hpp"
 
+#include "map_zones.hpp"
 #include "map_mode.hpp"
 
 namespace rpg_map_mode
@@ -255,7 +256,7 @@ CollisionType ObjectSupervisor::DetectCollision(MapObject* _object, const float 
     for(int y = static_cast<int>(sprite_rect.top); y <= static_cast<int>(sprite_rect.bottom); ++y) {
       for(int x = static_cast<int>(sprite_rect.left); x <= static_cast<int>(sprite_rect.right); ++x) {
         // Checks the collision grid at the row-column at the object's current context
-        if(collision_grid[y / 32 - 1][x / 32 - 1] > 0)
+        if(collision_grid[y / 32][x / 32] > 0)
           return WALL_COLLISION;
       }
     }
@@ -320,8 +321,16 @@ CollisionType ObjectSupervisor::GetCollisionFromObjectType(MapObject *_object) c
   return NO_COLLISION;
 }
 
+void ObjectSupervisor::AddZone(MapZone* _zone)
+{
+  map_zones.push_back(_zone);
+}
+
 void ObjectSupervisor::Update()
 {
+  for (auto zone : map_zones)
+    zone->Update();
+
   for (auto obj : ground_objects)
     obj->Update();
 }
@@ -330,6 +339,13 @@ void ObjectSupervisor::DrawObjects()
 {
   for (auto obj : all_objects)
     obj->Draw();
+}
+
+// This ia debugging function
+void ObjectSupervisor::DrawMapZones()
+{
+  for (auto zone : map_zones)
+    zone->Draw();
 }
 
 

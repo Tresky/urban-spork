@@ -402,6 +402,18 @@ void MapSprite::Draw()
 
     animations[current_animation]->SetPosition(x, y);
     animations[current_animation]->Draw();
+
+    if (rpg_video::VideoManager->IsDebug())
+    {
+      MapRectangle rect = GetGridCollisionRectangle(x, y);
+      sf::RectangleShape r(sf::Vector2f(rect.right - rect.left,
+                                        rect.bottom - rect.top));
+      r.setOutlineColor(sf::Color::Red);
+      r.setOutlineThickness(1.f);
+      r.setFillColor(sf::Color::Transparent);
+      r.setPosition(rect.left, rect.top);
+      rpg_video::VideoManager->DrawShape(r);
+    }
   }
 }
 
