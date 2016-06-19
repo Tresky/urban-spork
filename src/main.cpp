@@ -88,7 +88,7 @@ bool InitializeSingletons()
 
   if (!SystemManager->InitSingleton())
   {
-    PRINT_ERROR << "Failed to intialize SystemEngine singleton" << endl;
+    PRINT_ERROR << "Failed to initialize SystemEngine singleton" << endl;
     return false;
   }
 

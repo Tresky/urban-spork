@@ -18,6 +18,7 @@ class MapSprite;
 class EnemySprite;
 class TileSupervisor;
 class ObjectSupervisor;
+class EventSupervisor;
 class MapFrame;
 class Camera;
 }
@@ -54,6 +55,11 @@ public:
   private_map_mode::ObjectSupervisor* GetObjectSupervisor() const
   {
     return object_supervisor;
+  }
+
+  private_map_mode::EventSupervisor* GetEventSupervisor() const
+  {
+    return event_supervisor;
   }
 
   void SetCamera(private_map_mode::VirtualSprite* _sprite, const float _duration);
@@ -131,6 +137,8 @@ private:
 
   //
   private_map_mode::ObjectSupervisor* object_supervisor;
+
+  private_map_mode::EventSupervisor* event_supervisor;
 
   //
   private_map_mode::MapFrame frame;

@@ -18,6 +18,9 @@
 namespace rpg_video
 {
 
+namespace private_video
+{ class Fader; }
+
 class VideoEngine;
 extern VideoEngine* VideoManager;
 extern bool VIDEO_DEBUG;
@@ -46,15 +49,7 @@ public:
   /**
    * Destructor
    */
-  ~VideoEngine()
-  {
-    IF_PRINT_DEBUG(VIDEO_DEBUG) << "VideoEngine destructor called" << endl;
-
-    if (window->isOpen())
-      window->close();
-    if (window)
-      delete window;
-  }
+  ~VideoEngine();
 
   /**
    * Inherited from Singleton; initialize the
@@ -72,19 +67,7 @@ public:
    * \param _height Height of window
    * \param _title  Title to place in window
    */
-  void CreateWindow(unsigned int _width, unsigned int _height, string _title)
-  {
-    if (!window)
-    {
-      screen_width = _width;
-      screen_height = _height;
-      window = new sf::RenderWindow(sf::VideoMode(screen_width, screen_height), _title);
-      window->setFramerateLimit(60);
-      IF_PRINT_DEBUG(VIDEO_DEBUG) << "Window created" << endl;
-    }
-    else
-      IF_PRINT_DEBUG(VIDEO_DEBUG) << "Window already created" << endl;
-  }
+  void CreateWindow(unsigned int _width, unsigned int _height, string _title);
 
   /**
    * Returns the SFML window handle.
@@ -180,6 +163,19 @@ public:
   }
 
   /**
+   * Returns whether the screen is currently fading in or out.
+   * \return Boolean indicating whether the screen is fading in/out
+   */
+  bool IsFading();
+
+  /**
+   * Begins a transition on the screen using the given parameters.
+   * \param _color    sf::Color to fade to
+   * \param _duration Milliseconds to fade for
+   */
+  void StartTransitionFadeOut(const sf::Color _color, const int _duration);
+
+  /**
    * Draws a line to the SFML window handle. This
    * function requires two coordinates and draws
    * a line between them.
@@ -248,6 +244,9 @@ private:
 
   //! Whether or not to draw debug info (collision boxes, etc)
   bool debug;
+
+  //! Fader object to handle all screen-level fades
+  private_video::Fader* screen_fader;
 }; // class VideoEngine
 
 } // namespace rpg_video

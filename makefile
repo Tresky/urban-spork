@@ -15,12 +15,16 @@ INCS = -I/usr/local/include
 _ENG_OBJ = system.o mode_manager.o video_manager.o script.o script_read.o resources.o image.o input.o lua_bindings.o
 ENG_OBJ = $(patsubst %, $(ODIR)/%, $(_ENG_OBJ))
 
+# Video Utils
+_VUTIL_OBJ = fade.o
+VUTIL_OBJ = $(patsubst %, $(ODIR)/%, $(_VUTIL_OBJ))
+
 # Global Objects
 _GLOB_OBJ = global.o global_actors.o
 GLOB_OBJ = $(patsubst %, $(ODIR)/%, $(_GLOB_OBJ))
 
 # Mode Objects
-_MOD_OBJ = map_utils.o map_mode.o map_tiles.o map_objects.o map_sprites.o
+_MOD_OBJ = map_utils.o map_mode.o map_tiles.o map_objects.o map_sprites.o map_events.o
 MOD_OBJ = $(patsubst %, $(ODIR)/%, $(_MOD_OBJ))
 
 
@@ -30,23 +34,31 @@ MOD_OBJ = $(patsubst %, $(ODIR)/%, $(_MOD_OBJ))
 _ENG_DEP = system.hpp mode_manager.hpp video_manager.hpp script.hpp script_read.hpp resources.hpp image.hpp input.hpp
 ENG_DEP = $(patsubst %, ./src/core/%, $(_ENG_DEP))
 
+# Video Utils
+_VUTIL_DEP = fade.hpp
+VUTIL_DEP = $(patsubst %, ./src/core/video_utils/%, $(_VUTIL_DEP))
+
 # Global Headers
 _GLOB_DEP = global.hpp global_actors.hpp
 GLOB_DEP = $(patsubst %, ./src/core/global/%, $(_GLOB_DEP))
 
 # Mode Headers
-_MOD_DEP = map_utils.hpp map_mode.hpp map_tiles.hpp map_objects.hpp map_sprites.hpp
+_MOD_DEP = map_utils.hpp map_mode.hpp map_tiles.hpp map_objects.hpp map_sprites.hpp map_events.hpp
 MOD_DEP = $(patsubst %, ./src/modes/map/%, $(_MOD_DEP))
 
 
 
 #### RULES ####
 # Links object files and libraries into executable
-rpg: $(ENG_OBJ) $(GLOB_OBJ) $(MOD_OBJ) obj/main.o
+rpg: $(ENG_OBJ) $(VUTIL_OBJ) $(GLOB_OBJ) $(MOD_OBJ) obj/main.o
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS) $(INCS)
 
 # Compiles engine from /src/core/*
 $(ODIR)/%.o: ./src/core/%.cpp $(ENG_DEP)
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
+
+# Compiles engine from /src/core/video_utils/*
+$(ODIR)/%.o: ./src/core/video_utils/%.cpp $(VUTIL_DEP)
 	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 # Compiles engine from /src/core/global/*

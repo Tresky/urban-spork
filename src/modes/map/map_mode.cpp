@@ -9,6 +9,7 @@
 #include "map_tiles.hpp"
 #include "map_objects.hpp"
 #include "map_sprites.hpp"
+#include "map_events.hpp"
 #include "map_utils.hpp"
   using namespace rpg_input;
   using rpg_map_mode::private_map_mode::MapRectangle;
@@ -36,6 +37,7 @@ MapMode::MapMode(const string& _lua_filepath)
 
   tile_supervisor = new private_map_mode::TileSupervisor();
   object_supervisor = new private_map_mode::ObjectSupervisor();
+  event_supervisor = new private_map_mode::EventSupervisor();
 
   // temp = new private_map_mode::MapSprite(MapObjectDrawLayer::GROUND_OBJECT);
   // if (!temp->LoadAnimations("data/entities/actor0-walking.lua"))

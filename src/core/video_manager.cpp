@@ -1,5 +1,6 @@
 #include "../utils/globals.hpp"
 #include "video_manager.hpp"
+#include "video_utils/fade.hpp"
 
 #include "system.hpp"
 
@@ -17,6 +18,7 @@ VideoEngine::VideoEngine()
   , screen_width(0)
   , screen_height(0)
   , debug(true)
+  , screen_fader(nullptr)
 {
   IF_PRINT_DEBUG(VIDEO_DEBUG) << "VideoEngine constructor called" << endl;
 
@@ -27,6 +29,35 @@ VideoEngine::VideoEngine()
   fps_text.setPosition(5, 5);
   fps_text.setColor(sf::Color::White);
   fps_text.setCharacterSize(24);
+}
+
+VideoEngine::~VideoEngine()
+{
+  IF_PRINT_DEBUG(VIDEO_DEBUG) << "VideoEngine destructor called" << endl;
+
+  if (window->isOpen())
+    window->close();
+  if (window)
+    delete window;
+  if (screen_fader)
+    delete screen_fader;
+}
+
+void VideoEngine::CreateWindow(unsigned int _width, unsigned int _height, string _title)
+{
+  if (!window)
+  {
+    screen_width = _width;
+    screen_height = _height;
+    window = new sf::RenderWindow(sf::VideoMode(screen_width, screen_height), _title);
+    window->setFramerateLimit(60);
+    IF_PRINT_DEBUG(VIDEO_DEBUG) << "Window created" << endl;
+  }
+  else
+    IF_PRINT_DEBUG(VIDEO_DEBUG) << "Window already created" << endl;
+
+  if (!screen_fader)
+    screen_fader = new private_video::Fader();
 }
 
 void VideoEngine::Update()
@@ -68,6 +99,16 @@ void VideoEngine::UpdateFPS()
 void VideoEngine::DrawFPS() const
 {
   window->draw(fps_text);
+}
+
+bool VideoEngine::IsFading()
+{
+  return screen_fader->IsFading();
+}
+
+void VideoEngine::StartTransitionFadeOut(const sf::Color _color, const int _duration)
+{
+  screen_fader->StartTransitionFadeOut(_color, _duration);
 }
 
 void VideoEngine::DrawLine(const int _x1, const int _y1,
