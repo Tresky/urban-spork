@@ -15,12 +15,12 @@ public:
 
   ~MapEvent() {}
 
-  const std::string GetEventId() const
+  std::string GetEventId() const
   {
     return id;
   }
 
-  const bool IsFinished() const
+  bool IsFinished() const
   {
     return !active;
   }
@@ -28,7 +28,7 @@ public:
 protected:
   virtual void Launch() = 0;
 
-  virtual void Update() = 0;
+  virtual bool Update() = 0;
 
   bool active;
 
@@ -38,6 +38,7 @@ private:
 
 class MapTransitionEvent : public MapEvent
 {
+public:
   MapTransitionEvent(const std::string& _id,
                      const std::string& _map_name,
                      const std::string& _origin);
@@ -51,10 +52,12 @@ class MapTransitionEvent : public MapEvent
 protected:
   void Launch();
 
-  void Update();
+  bool Update();
 
   std::string new_map_name;
   std::string origin;
+
+  bool done;
 };
 
 class EventSupervisor
@@ -65,7 +68,7 @@ public:
 
   ~EventSupervisor();
 
-  void LaunchEvent(const std::string& _id);
+  void LaunchEventById(const std::string& _id);
 
   void LaunchEvent(MapEvent* _event);
 

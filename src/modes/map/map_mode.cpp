@@ -21,15 +21,16 @@ namespace rpg_map_mode
 MapMode *MapMode::current_instance = nullptr;
 bool MAP_MODE_DEBUG = true;
 
-MapMode::MapMode(const string& _lua_filepath)
+MapMode::MapMode(const string& _map_name)
   : GameMode()
-  , lua_filepath(_lua_filepath)
+  , map_name(_map_name)
   , camera(nullptr)
   , delta_x(0)
   , delta_y(0)
   , tile_supervisor(nullptr)
   , temp(nullptr)
   , enemy(nullptr)
+  , read_script(nullptr)
 {
   IF_PRINT_DEBUG(MAP_MODE_DEBUG) << "MapMode constructor called" << endl;
 
@@ -72,8 +73,8 @@ MapMode::MapMode(const string& _lua_filepath)
 
   //camera->SetCenterPosition(128, 128);
 
-  if (!LoadMap(_lua_filepath))
-    PRINT_ERROR << "Failed to load Lua tilemap: " << lua_filepath << endl;
+  if (!LoadMap())
+    PRINT_ERROR << "Failed to load Lua tilemap: " << map_name << endl;
 }
 
 MapMode::~MapMode()
@@ -81,6 +82,7 @@ MapMode::~MapMode()
   delete temp; temp = nullptr;
   //delete camera; camera = nullptr;
   delete tile_supervisor; tile_supervisor = nullptr;
+  delete read_script; read_script = nullptr;
 }
 
 void MapMode::SetCamera(private_map_mode::VirtualSprite* _sprite, const float _duration)
@@ -108,10 +110,11 @@ void MapMode::Update()
 
   tile_supervisor->Update();
   object_supervisor->Update();
-
   //camera_timer.Update();
 
-
+  read_script->CallFunction("Update");
+  if (read_script->HasError())
+    read_script->PrintErrors();
 
   if (!InputManager->IsUpKeyPressed() && !InputManager->IsDownKeyPressed() &&
       !InputManager->IsLeftKeyPressed() && !InputManager->IsRightKeyPressed())
@@ -144,6 +147,8 @@ void MapMode::Update()
     else if (InputManager->IsRightKeyPressed())
       camera->SetDirection(DIRECTION_EAST);
   }
+
+  event_supervisor->Update();
 
   GameMode::Update();
 
@@ -262,31 +267,38 @@ void MapMode::Reset()
 
 }
 
-bool MapMode::LoadMap(const std::string& _lua_filepath)
+bool MapMode::LoadMap()
 {
-  rpg_script::ReadScript map_script;
-  if (!map_script.OpenFile(_lua_filepath))
+  std::string script_name = "data/maps/" + map_name + "-map.lua";
+
+  if (!read_script)
+    read_script = new rpg_script::ReadScript();
+
+  if (read_script->IsOpen())
+    read_script->CloseFile();
+
+  if (!read_script->OpenFile(script_name))
   {
-    PRINT_ERROR << "Failed to open tilemap script: " << _lua_filepath << endl;
+    PRINT_ERROR << "Failed to open tilemap script: " << script_name << endl;
     return false;
   }
 
   // cout << "---------- Tilemap Information ----------" << endl;
   // cout << "| File: " << _lua_filepath << endl;
 
-  map_script.OpenTable("map_data");
+  read_script->OpenTable("map_data");
 
-  string script_path = map_script.ReadData<string>("script_path", "");
+  string script_path = read_script->ReadData<string>("script_path", "");
 
-  int map_width = map_script.ReadData<int>("num_cols", -1);
-  int map_height = map_script.ReadData<int>("num_rows", -1);
+  int map_width = read_script->ReadData<int>("num_cols", -1);
+  int map_height = read_script->ReadData<int>("num_rows", -1);
   if (map_width < 0 || map_height < 0)
   {
     PRINT_ERROR << "Invalid map dimensions in map script." << endl;
     return false;
   }
 
-  // string name = map_script.ReadData<string>("name", "");
+  // string name = read_script->ReadData<string>("name", "");
   // cout << "| Name: " << name << endl;
   // cout << "|" << endl;
   //
@@ -296,8 +308,8 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
   if (!tile_supervisor)
     tile_supervisor = new private_map_mode::TileSupervisor();
 
-  map_script.OpenTable("tilesets");
-  int num_tilesets = map_script.ReadData<int>("count", -1);
+  read_script->OpenTable("tilesets");
+  int num_tilesets = read_script->ReadData<int>("count", -1);
 
   // cout << "| Tileset Count: " << num_tilesets << endl;
 
@@ -309,7 +321,7 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
 
   for (int i = 0; i < num_tilesets; ++i)
   {
-    string path = map_script.ReadData<string>(i, "");
+    string path = read_script->ReadData<string>(i, "");
     // cout << "| " << i << ". " << path << endl;
     if (path.empty() || !LoadTileset(path))
     {
@@ -317,13 +329,13 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
       return false;
     }
   }
-  map_script.CloseTable();
+  read_script->CloseTable();
 
   // cout << "|\n----------- Layer Information -----------" << endl;
 
   // Load in the layer data
-  map_script.OpenTable("layers");
-  int num_layers = map_script.ReadData<int>("num_layers", -1);
+  read_script->OpenTable("layers");
+  int num_layers = read_script->ReadData<int>("num_layers", -1);
 
   // cout << "| Layer Count: " << num_layers << endl;
   if (num_layers < 0)
@@ -332,18 +344,18 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
     return false;
   }
 
-  if (map_script.HasError())
+  if (read_script->HasError())
   {
-    map_script.PrintErrors();
+    read_script->PrintErrors();
     return false;
   }
 
   for (int l = 0; l < num_layers; ++l)
   {
-    map_script.OpenTableIntegers(l);
+    read_script->OpenTableIntegers(l);
 
     MapLayerType type;
-    string str_type = map_script.ReadData<string>("type", "");
+    string str_type = read_script->ReadData<string>("type", "");
 
     if (str_type == "ground")
       type = MapLayerType::GROUND;
@@ -362,25 +374,25 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
     private_map_mode::MapLayer layer(type);
     for (int row = 0; row < map_height; ++row)
     {
-      map_script.OpenTableIntegers(row + 1);
+      read_script->OpenTableIntegers(row + 1);
       // cout << "|\t";
       vector<int> temp;
       for (int col = 0; col < map_width; ++col)
       {
-        int id = map_script.ReadData<int>(col + 1, -1);
+        int id = read_script->ReadData<int>(col + 1, -1);
         // cout << setw(3) << id << " ";
         temp.push_back(id);
       }
       // cout << endl;
       layer.tiles.push_back(temp);
-      map_script.CloseTable();
+      read_script->CloseTable();
     }
 
     tile_supervisor->layers.push_back(layer);
 
-    map_script.CloseTable();
+    read_script->CloseTable();
   }
-  map_script.CloseTable();
+  read_script->CloseTable();
 
   // cout << "|\n--------- Collision Information ---------" << endl;
   // Load object data
@@ -389,45 +401,45 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
 
   // cout << "| " << "Static Collision Matrix" << endl;
 
-  map_script.OpenTable("collision");
+  read_script->OpenTable("collision");
 
-  if (map_script.HasError())
+  if (read_script->HasError())
   {
-    map_script.PrintErrors();
+    read_script->PrintErrors();
     return false;
   }
 
   for (int i = 0; i < map_height; ++i)
   {
-    map_script.OpenTableIntegers(i + 1);
+    read_script->OpenTableIntegers(i + 1);
     // cout << "|\t";
     vector<int> temp;
     for (int j = 0; j < map_width; ++j)
     {
-      int value = map_script.ReadData<int>(j + 1, -1);
+      int value = read_script->ReadData<int>(j + 1, -1);
       // cout << setw(2) << value << " ";
       temp.push_back(value);
     }
     object_supervisor->collision_grid.push_back(temp);
     // cout << endl;
-    map_script.CloseTable();
+    read_script->CloseTable();
   }
 
-  if (map_script.HasError())
+  if (read_script->HasError())
   {
-      map_script.PrintErrors();
+      read_script->PrintErrors();
       return false;
   }
 
-  map_script.CloseTable();
-  map_script.CloseFile();
+  read_script->CloseTable();
+  read_script->CloseFile();
 
   // cout << "-----------------------------------------" << endl;
 
   if (script_path.empty())
     return false;
 
-  if (!map_script.OpenFile(script_path))
+  if (!read_script->OpenFile(script_path))
   {
     PRINT_ERROR << "Failed to open tilemap script: " << script_path << endl;
     return false;
@@ -435,14 +447,14 @@ bool MapMode::LoadMap(const std::string& _lua_filepath)
 
   IF_PRINT_DEBUG(MAP_MODE_DEBUG) << "Loading tilemap functionality script" << endl;
 
-  map_script.CallFunction("Load");
-  if (map_script.HasError())
+  read_script->CallFunction("Load");
+  if (read_script->HasError())
   {
-      map_script.PrintErrors();
+      read_script->PrintErrors();
       return false;
   }
 
-  map_script.CloseFile();
+  // read_script->CloseFile();
 
   return true;
 }

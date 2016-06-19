@@ -116,6 +116,16 @@ sf::Vector2i MapObject::GetCenterPosition() const
                       tile_position.y + dimensions.y / 2);
 }
 
+int MapObject::GetXPosition() const
+{
+  return tile_position.x;
+}
+
+int MapObject::GetYPosition() const
+{
+  return tile_position.y;
+}
+
 /***************************************
  * Object Supervisor Class Definitions *
  ***************************************/

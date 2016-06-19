@@ -26,6 +26,11 @@ public:
     BeginFade(_color, _time, true);
   }
 
+  void TransitionalFadeIn(const int _time)
+  {
+    BeginFade(sf::Color::Transparent, _time, true);
+  }
+
   void Draw();
 
 private:

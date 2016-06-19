@@ -1,4 +1,5 @@
 #include "../utils/globals.hpp"
+#include "video_manager.hpp"
 #include "mode_manager.hpp"
 #include "system.hpp"
 
@@ -92,7 +93,7 @@ void ModeEngine::Pop(bool _fade_out, bool _fade_in)
 
   if (_fade_out)
   {
-    // Iplement fade stuff in VideoManager
+    rpg_video::VideoManager->StartTransitionFadeOut(sf::Color::Black, 500);
     fade_out = true;
     fade_out_finished = false;
   }
@@ -118,7 +119,7 @@ void ModeEngine::Push(GameMode *_game_mode, bool _fade_out, bool _fade_in)
 
   if(_fade_out)
   {
-    //VideoManager->_StartTransitionFadeOut(Color::black, FADE_IN_OUT_TIME);
+    rpg_video::VideoManager->StartTransitionFadeOut(sf::Color::Black, 750);
     fade_out = true;
     fade_out_finished = false;
   }
@@ -139,10 +140,11 @@ GameMode* ModeEngine::GetTop()
 void ModeEngine::Update()
 {
   // Check whether the fade out is done.
-  // if(fade_out && VideoManager->IsLastFadeTransitional() && !VideoManager->IsFading()) {
-  //     fade_out = false;
-  //     fade_out_finished = true;
-  // }
+  if (fade_out && !rpg_video::VideoManager->IsFading())
+  {
+      fade_out = false;
+      fade_out_finished = true;
+  }
 
   // If a Push() or Pop() function was called, we need to adjust the state of the game stack.
   if(fade_out_finished && state_change)
@@ -189,7 +191,8 @@ void ModeEngine::Update()
     fade_out_finished = false;
 
     // We can now fade in, or not
-    //VideoManager->_TransitionalFadeIn(fade_in ? FADE_IN_OUT_TIME : 0);
+    if (fade_in)
+      rpg_video::VideoManager->TransitionalFadeIn(750);
 
     // Call the system manager and tell it that the active game mode changed so it can update timers accordingly
     SystemManager->ExamineSystemTimers();

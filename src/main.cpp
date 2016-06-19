@@ -36,7 +36,7 @@ int main()
 
   GlobalManager->NewGame();
 
-  ModeManager->Push(new rpg_map_mode::MapMode("data/maps/test-map.lua"));
+  ModeManager->Push(new rpg_map_mode::MapMode("test"), false, false);
 
   sf::RectangleShape rect(sf::Vector2f(32, 32));
   rect.setOrigin(16, 16);
@@ -53,6 +53,7 @@ int main()
     VideoManager->Clear();
 
     ModeManager->Draw();
+    VideoManager->DrawFadeEffect();
     // VideoManager->DrawLine(1024 / 2, 0, 1024 / 2, 768, 5, sf::Color::Red);
     // VideoManager->DrawLine(0, 768 / 2, 1024, 768 / 2, 5, sf::Color::Red);
 

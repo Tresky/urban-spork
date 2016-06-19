@@ -3,6 +3,9 @@
 #include "script.hpp"
 #include "../modes/map/map_mode.hpp"
 #include "../modes/map/map_sprites.hpp"
+#include "../modes/map/map_events.hpp"
+
+#include "global/global.hpp"
 
 #include "../utils/lua_bridge.hpp"
   using namespace luabridge;
@@ -15,16 +18,21 @@ void BindEngineCode()
 
   using namespace rpg_map_mode;
   using namespace private_map_mode;
+  using namespace rpg_global;
+
   getGlobalNamespace(ScriptManager->GetGlobalState())
     .beginNamespace("rpg_map_mode")
       .beginClass<MapMode>("MapMode")
         .addStaticFunction("CurrentInstance", &MapMode::CurrentInstance)
+        .addFunction("GetEventSupervisor", &MapMode::GetEventSupervisor)
         .addFunction("SetCamera", &MapMode::SetCamera)
       .endClass()
 
       .beginClass<MapObject>("MapObject")
         .addFunction("SetPosition", &MapObject::SetPosition)
         .addFunction("SetDimensions", &MapObject::SetDimensions)
+        .addFunction("GetXPosition", &MapObject::GetXPosition)
+        .addFunction("GetYPosition", &MapObject::GetYPosition)
       .endClass()
       .deriveClass<VirtualSprite, MapObject>("VirtualSprite")
       .endClass()
@@ -34,5 +42,22 @@ void BindEngineCode()
       .endClass()
       .deriveClass<EnemySprite, MapSprite>("EnemySprite")
         .addStaticFunction("Create", &EnemySprite::Create)
+      .endClass()
+
+      .beginClass<EventSupervisor>("EventSupervisor")
+        .addFunction("LaunchEventById", &EventSupervisor::LaunchEventById)
+      .endClass()
+      .beginClass<MapEvent>("MapEvent")
+        .addFunction("IsFinished", &private_map_mode::MapEvent::IsFinished)
+        .addFunction("GetEventId", &private_map_mode::MapEvent::GetEventId)
+      .endClass()
+      .deriveClass<MapTransitionEvent, MapEvent>("MapTransitionEvent")
+        .addStaticFunction("Create", &MapTransitionEvent::Create)
+      .endClass()
+    .endNamespace()
+
+    .beginNamespace("rpg_global")
+      .beginClass<GlobalEngine>("GlobalEngine")
+        .addFunction("GetPreviousLocation", &GlobalEngine::GetPreviousLocation)
       .endClass();
 }

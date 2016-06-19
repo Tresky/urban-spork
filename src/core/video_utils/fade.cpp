@@ -22,6 +22,7 @@ Fader::Fader()
                                    VideoManager->GetScreenHeight());
   rect.setSize(size);
   rect.setFillColor(current_color);
+  rect.setPosition(0, 0);
 }
 
 void Fader::BeginFade(const sf::Color& _color,
@@ -35,7 +36,7 @@ void Fader::BeginFade(const sf::Color& _color,
 
   initial_color = current_color;
   final_color = _color;
-  elapsed_time = 0.f;
+  elapsed_time = 0;
 
   Update(0);
 }
@@ -54,7 +55,8 @@ void Fader::Update(const int _elapsed_time)
 
   float percent_complete = static_cast<float>(elapsed_time) / static_cast<float>(total_time);
 
-  current_color = sf::Color(0, 0, 0, percent_complete);
+  current_color.a = percent_complete * final_color.a + (1.f - percent_complete) * initial_color.a;
+  rect.setFillColor(current_color);
 
   elapsed_time += _elapsed_time;
 }
@@ -63,7 +65,6 @@ void Fader::Draw()
 {
   VideoManager->DrawShape(rect);
 }
-
 
 }
 

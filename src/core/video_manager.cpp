@@ -62,6 +62,9 @@ void VideoEngine::CreateWindow(unsigned int _width, unsigned int _height, string
 
 void VideoEngine::Update()
 {
+  if (screen_fader)
+    screen_fader->Update(SystemManager->GetUpdateTime());
+
   UpdateFPS();
 }
 
@@ -109,6 +112,16 @@ bool VideoEngine::IsFading()
 void VideoEngine::StartTransitionFadeOut(const sf::Color _color, const int _duration)
 {
   screen_fader->StartTransitionFadeOut(_color, _duration);
+}
+
+void VideoEngine::TransitionalFadeIn(const int _duration)
+{
+  screen_fader->TransitionalFadeIn(_duration);
+}
+
+void VideoEngine::DrawFadeEffect()
+{
+    screen_fader->Draw();
 }
 
 void VideoEngine::DrawLine(const int _x1, const int _y1,

@@ -74,6 +74,9 @@ public:
 
   sf::Vector2i GetCenterPosition() const;
 
+  int GetXPosition() const;
+  int GetYPosition() const;
+
   virtual void Update() = 0;
   virtual void Draw() = 0;
 

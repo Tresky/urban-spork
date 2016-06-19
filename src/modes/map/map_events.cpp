@@ -5,6 +5,8 @@
 #include "map_mode.hpp"
 #include "map_events.hpp"
 
+#include "../../core/global/global.hpp"
+
 namespace rpg_map_mode
 {
 
@@ -46,6 +48,7 @@ MapTransitionEvent::MapTransitionEvent(const std::string& _id,
  : MapEvent(_id)
  , new_map_name(_map_name)
  , origin(_origin)
+ , done(false)
 {}
 
 MapTransitionEvent* MapTransitionEvent::Create(const std::string& _id,
@@ -57,23 +60,24 @@ MapTransitionEvent* MapTransitionEvent::Create(const std::string& _id,
 
 void MapTransitionEvent::Launch()
 {
-  rpg_video::VideoManager->StartTransitionFadeOut(sf::Color::Black, 2000);
-  active = true;
+  rpg_video::VideoManager->StartTransitionFadeOut(sf::Color::Black, 750);
+  done = false;
 }
 
-void MapTransitionEvent::Update()
+bool MapTransitionEvent::Update()
 {
     if (rpg_video::VideoManager->IsFading())
-      return;
+      return false;
 
-    if (!IsFinished())
+    if (!done)
     {
-      // rpg_global::GlobalManager->SetPreviousLocation(origin);
+      rpg_global::GlobalManager->SetPreviousLocation(origin);
       MapMode* mode = new MapMode(new_map_name);
       rpg_mode_manager::ModeManager->Pop();
       rpg_mode_manager::ModeManager->Push(mode, false, true);
-      active = false;
+      done = true;
     }
+    return true;
 }
 
 
@@ -89,7 +93,7 @@ EventSupervisor::~EventSupervisor()
   // Need to delete all MapEvent*
 }
 
-void EventSupervisor::LaunchEvent(const std::string& _id)
+void EventSupervisor::LaunchEventById(const std::string& _id)
 {
   MapEvent* event = GetEvent(_id);
   if (!event)
@@ -119,8 +123,7 @@ void EventSupervisor::Update()
   std::vector<MapEvent*>::iterator it;
   for (it = active_events.begin(); it != active_events.end();)
   {
-    (*it)->Update();
-    if ((*it)->IsFinished())
+    if ((*it)->Update())
       it = active_events.erase(it);
     else
       ++it;

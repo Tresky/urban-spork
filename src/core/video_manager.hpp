@@ -124,6 +124,12 @@ public:
   }
 
   /**
+   * Draws the screen fader to the screen to enable
+   * fade effects to be displayed.
+   */
+  void DrawFadeEffect();
+
+  /**
    * Draws an SFML sprite to the window.
    * \param _sprite SFML sprite to draw
    */
@@ -169,11 +175,17 @@ public:
   bool IsFading();
 
   /**
-   * Begins a transition on the screen using the given parameters.
+   * Begins a transition out on the screen using the given parameters.
    * \param _color    sf::Color to fade to
    * \param _duration Milliseconds to fade for
    */
   void StartTransitionFadeOut(const sf::Color _color, const int _duration);
+
+  /**
+   * Begins a transition in on the screen using the given parameters;
+   * \param _duration Milliseconds to fade for
+   */
+  void TransitionalFadeIn(const int _duration);
 
   /**
    * Draws a line to the SFML window handle. This

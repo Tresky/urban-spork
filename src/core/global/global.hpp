@@ -39,6 +39,16 @@ public:
 
   GlobalCharacter* GetHero();
 
+  void SetPreviousLocation(const std::string& _loc)
+  {
+    prev_loc = _loc;
+  }
+
+  std::string GetPreviousLocation()
+  {
+    return prev_loc;
+  }
+
   bool AddCharacter(const GlobalCharacter* _char);
 
   void NewGame();
@@ -57,6 +67,8 @@ private:
   signed int counter;
 
   signed int hero_id;
+
+  std::string prev_loc;
 
 };
 

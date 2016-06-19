@@ -6,7 +6,10 @@
 #include "map_utils.hpp"
 
 namespace rpg_script
-{ class ScriptEngine; }
+{
+class ScriptEngine;
+class ReadScript;
+}
 
 namespace rpg_map_mode
 {
@@ -104,7 +107,7 @@ private:
    * Load the map from the specified Lua file.
    * @return True if successful, false otherwise
    */
-  bool LoadMap(const std::string& _lua_filepath);
+  bool LoadMap();
 
   bool LoadTileset(const std::string& _lua_filepath);
 
@@ -122,7 +125,7 @@ private:
   static MapMode* current_instance;
 
   // File path to the Lua file with the map data
-  std::string lua_filepath;
+  std::string map_name;
 
   private_map_mode::VirtualSprite* camera;
 
@@ -146,6 +149,8 @@ private:
 
   private_map_mode::MapSprite* temp;
   private_map_mode::EnemySprite* enemy;
+
+  rpg_script::ReadScript* read_script;
 };
 
 }
