@@ -49,6 +49,21 @@ public:
     return prev_loc;
   }
 
+  void SetPreviousPosition(const int _x, const int _y)
+  {
+    prev_pos = sf::Vector2i(_x, _y);
+  }
+
+  int GetPreviousX() const
+  {
+    return prev_pos.x;
+  }
+
+  int GetPreviousY() const
+  {
+    return prev_pos.y;
+  }
+
   bool AddCharacter(const GlobalCharacter* _char);
 
   void NewGame();
@@ -69,6 +84,8 @@ private:
   signed int hero_id;
 
   std::string prev_loc;
+
+  sf::Vector2i prev_pos;
 
 };
 

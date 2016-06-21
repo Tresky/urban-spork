@@ -69,5 +69,8 @@ void BindEngineCode()
       .addVariable("GlobalManager", &rpg_global::GlobalManager)
       .beginClass<GlobalEngine>("GlobalEngine")
         .addFunction("GetPreviousLocation", &GlobalEngine::GetPreviousLocation)
+        .addFunction("SetPreviousPosition", &GlobalEngine::SetPreviousPosition)
+        .addFunction("GetPreviousX", &GlobalEngine::GetPreviousX)
+        .addFunction("GetPreviousY", &GlobalEngine::GetPreviousY)
       .endClass();
 }

@@ -167,8 +167,8 @@ void ModeEngine::Update()
     while(!push_stack.empty())
     {
       // Tell the previous game mode about being deactivated.
-      //if(!mode_stack.empty() && mode_stack.back())
-        //mode_stack.back()->Deactivate();
+      if(!mode_stack.empty() && mode_stack.back())
+        mode_stack.back()->Deactivate();
 
       mode_stack.push_back(push_stack.back());
       push_stack.pop_back();

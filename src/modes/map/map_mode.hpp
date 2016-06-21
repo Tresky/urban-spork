@@ -102,6 +102,8 @@ public:
    */
   void Reset();
 
+  void Deactivate();
+
 private:
   /**
    * Load the map from the specified Lua file.
@@ -151,6 +153,8 @@ private:
   private_map_mode::EnemySprite* enemy;
 
   rpg_script::ReadScript* read_script;
+
+  bool active;
 };
 
 }

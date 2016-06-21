@@ -56,6 +56,8 @@ public:
    */
   virtual void Reset() = 0;
 
+  virtual void Deactivate() {}
+
 private:
   /**
    * Delete the copy functions so they are not used.

@@ -31,6 +31,7 @@ MapMode::MapMode(const string& _map_name)
   , temp(nullptr)
   , enemy(nullptr)
   , read_script(nullptr)
+  , active(true)
 {
   IF_PRINT_DEBUG(MAP_MODE_DEBUG) << "MapMode constructor called" << endl;
 
@@ -536,6 +537,14 @@ void MapMode::UpdateCameraFrame()
 
   frame.num_draw_x_axis = static_cast<int>(rpg_video::VideoManager->GetScreenWidth() / 32) + 3;
   frame.num_draw_y_axis = static_cast<int>(rpg_video::VideoManager->GetScreenHeight() / 32) + 3;
+}
+
+void MapMode::Deactivate()
+{
+  if (!active)
+    return;
+
+  active = false;
 }
 
 }

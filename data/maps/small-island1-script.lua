@@ -28,7 +28,7 @@ end
 
 function Update()
   if (camera_zone:IsCameraInside()) then
-    -- print "Event Triggered"
+    rpg_global.GlobalManager:SetPreviousPosition(hero:GetXPosition(), hero:GetYPosition());
     EventManager:LaunchEventById("transition to new map");
   end
 end
@@ -37,7 +37,7 @@ function CreateCharacters()
   hero = rpg_map_mode.MapSprite.Create(0);
 
   if (rpg_global.GlobalManager:GetPreviousLocation() == "small-island") then
-    hero:SetPosition(64, 144);
+    hero:SetPosition(64, rpg_global.GlobalManager:GetPreviousY());
     hero:SetDirection(DIRECTION_EAST);
   else
     hero:SetPosition(144, 144);
