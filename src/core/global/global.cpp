@@ -12,6 +12,7 @@ GlobalEngine* GlobalManager = nullptr;
 bool GLOBAL_DEBUG = true;
 
 GlobalEngine::GlobalEngine()
+  : prev_loc("")
 {
   IF_PRINT_DEBUG(GLOBAL_DEBUG) << "GlobalEngine constructor called" << endl;
 }

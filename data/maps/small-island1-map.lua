@@ -1,7 +1,6 @@
-print "OPENING"
 map_data = {}
 map_data.name = "Small Island"
-map_data.num_cols = 10
+map_data.num_cols = 11
 map_data.num_rows = 10
 
 map_data.script_path = "data/maps/small-island1-script.lua"
@@ -11,16 +10,16 @@ map_data.tilesets.count = 1
 map_data.tilesets[0] = "data/maps/tileset.lua"
 
 map_data.collision = {}
-map_data.collision[1]  = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-map_data.collision[2]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-map_data.collision[3]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-map_data.collision[4]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-map_data.collision[5]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-map_data.collision[6]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-map_data.collision[7]  = {1, 0, 0, 0, 0, 0, 1, 1, 0, 1}
-map_data.collision[8]  = {1, 0, 0, 0, 0, 0, 1, 1, 0, 1}
-map_data.collision[9]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
-map_data.collision[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+map_data.collision[1]  = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+map_data.collision[2]  = {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+map_data.collision[3]  = {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+map_data.collision[4]  = {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+map_data.collision[5]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+map_data.collision[6]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+map_data.collision[7]  = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1}
+map_data.collision[8]  = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1}
+map_data.collision[9]  = {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+map_data.collision[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 
 
 map_data.layers = {}
@@ -28,30 +27,30 @@ map_data.layers.num_layers = 2
 map_data.layers[0] = {}
 map_data.layers[0].type = "ground"
 map_data.layers[0].name = "Background"
-map_data.layers[0][1]  = {163, 163, 163, 163, 163, 163, 163, 163, 163, 163}
-map_data.layers[0][2]  = {163, 160, 161, 161, 161, 161, 161, 161, 162, 163}
-map_data.layers[0][3]  = {163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
-map_data.layers[0][4]  = {163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
-map_data.layers[0][5]  = {163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
-map_data.layers[0][6]  = {163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
-map_data.layers[0][7]  = {163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
-map_data.layers[0][8]  = {163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
-map_data.layers[0][9]  = {163, 192, 193, 193, 193, 193, 193, 193, 194, 163}
-map_data.layers[0][10] = {163, 208, 209, 209, 209, 209, 209, 209, 210, 163}
+map_data.layers[0][1]  = {163, 163, 163, 163, 163, 163, 163, 163, 163, 163, 163}
+map_data.layers[0][2]  = {163, 163, 160, 161, 161, 161, 161, 161, 161, 162, 163}
+map_data.layers[0][3]  = {163, 163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
+map_data.layers[0][4]  = {163, 163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
+map_data.layers[0][5]  = {163, 163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
+map_data.layers[0][6]  = {163, 163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
+map_data.layers[0][7]  = {163, 163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
+map_data.layers[0][8]  = {163, 163, 176, 177, 177, 177, 177, 177, 177, 178, 163}
+map_data.layers[0][9]  = {163, 163, 192, 193, 193, 193, 193, 193, 193, 194, 163}
+map_data.layers[0][10] = {163, 163, 208, 209, 209, 209, 209, 209, 209, 210, 163}
 
 map_data.layers[1] = {}
-map_data.layers[1].type = "wall"
+map_data.layers[1].type = "ground"
 map_data.layers[1].name = "Foreground"
-map_data.layers[1][1]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-map_data.layers[1][2]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-map_data.layers[1][3]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-map_data.layers[1][4]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-map_data.layers[1][5]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-map_data.layers[1][6]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-map_data.layers[1][7]  = {-1, -1, -1, -1, -1, -1, 137, 138, -1, -1}
-map_data.layers[1][8]  = {-1, -1, -1, -1, -1, -1, 153, 154, -1, -1}
-map_data.layers[1][9]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-map_data.layers[1][10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+map_data.layers[1][1]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+map_data.layers[1][2]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+map_data.layers[1][3]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+map_data.layers[1][4]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+map_data.layers[1][5]  = {218, 219, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+map_data.layers[1][6]  = {234, 235, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+map_data.layers[1][7]  = {-1, -1, -1, -1, -1, -1, 137, 138, -1, -1, -1}
+map_data.layers[1][8]  = {-1, -1, -1, -1, -1, -1, 153, 154, -1, -1, -1}
+map_data.layers[1][9]  = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+map_data.layers[1][10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
 
 -- map_data.layers[1] = {}
 -- map_data.layers[1].type = "wall"

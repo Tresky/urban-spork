@@ -4,6 +4,16 @@ local hero = nil
 local EventManager = nil
 local camera_zone = nil
 
+local DIRECTION_INVALID = 0;
+local DIRECTION_NORTH = 1;
+local DIRECTION_NORTHWEST = 2;
+local DIRECTION_NORTHEAST = 3;
+local DIRECTION_SOUTH = 4;
+local DIRECTION_SOUTHWEST = 5;
+local DIRECTION_SOUTHEAST = 6;
+local DIRECTION_EAST = 7;
+local DIRECTION_WEST = 8;
+
 function Load()
   local map = rpg_map_mode.MapMode.CurrentInstance()
   EventManager = map:GetEventSupervisor();
@@ -12,7 +22,7 @@ function Load()
 
   map:SetCamera(hero, 0);
 
-  camera_zone = rpg_map_mode.CameraZone.Create(256, 0, 320, 320);
+  camera_zone = rpg_map_mode.CameraZone.Create(32, 0, 63, 320);
   rpg_map_mode.MapTransitionEvent.Create("transition to new map", "small-island", "small-island1");
 end
 
@@ -26,7 +36,12 @@ end
 function CreateCharacters()
   hero = rpg_map_mode.MapSprite.Create(0);
 
-  hero:SetPosition(144, 144);
+  if (rpg_global.GlobalManager:GetPreviousLocation() == "small-island") then
+    hero:SetPosition(64, 144);
+    hero:SetDirection(DIRECTION_EAST);
+  else
+    hero:SetPosition(144, 144);
+  end
   hero:SetDimensions(32, 32);
   hero:LoadAnimations("data/entities/actor0-walking.lua");
 

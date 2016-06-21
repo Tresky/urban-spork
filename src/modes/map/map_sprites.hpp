@@ -38,6 +38,11 @@ public:
 
   void SetDirection(const Direction _direction);
 
+  void SetDirectionInt(const int _direction)
+  {
+    SetDirection(static_cast<Direction>(_direction));
+  }
+
   void SetRandomDirection();
 
   const Direction GetDirection()
