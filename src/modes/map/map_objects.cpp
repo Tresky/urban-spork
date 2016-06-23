@@ -2,6 +2,7 @@
 #include "map_objects.hpp"
 
 #include "map_zones.hpp"
+#include "map_sprites.hpp"
 #include "map_mode.hpp"
 
 namespace rpg_map_mode
@@ -348,6 +349,31 @@ void ObjectSupervisor::DrawMapZones()
     zone->Draw();
 }
 
+MapObject* ObjectSupervisor::FindClosestObject(const VirtualSprite* _source,
+                                               const ObjectType _type,
+                                               float _dist)
+{
+  MapRectangle search_area = _source->GetGridCollisionRectangle();
+  search_area.left -= _dist;
+  search_area.right += _dist;
+  search_area.top -= _dist;
+  search_area.bottom += _dist;
+
+  std::vector<MapObject*> valid;
+
+  for (MapObject* obj : ground_objects)
+  {
+    if (obj == _source)
+      continue;
+    if (MapRectangle::CheckIntersection(obj->GetGridCollisionRectangle(), search_area))
+      valid.push_back(obj);
+  }
+
+  if (valid.empty())
+    return nullptr;
+
+  return valid[0];
+}
 
 
 }

@@ -161,15 +161,15 @@ void AnimatedImage::Update()
   frame_counter += elapsed_time;
   if (frame_counter > frames[current_frame]->frame_time)
   {
-    current_frame += frame_delta;
+    current_frame++;
+    if (number_loops < 0 && current_frame >= frames.size())
+      current_frame = 0;
     frame_counter = 0;
-    if (current_frame == 0 || current_frame == frames.size() - 1)
-      frame_delta *= -1;
   }
 
-  if (current_frame >= frames.size())
+  if (number_loops >= 0 && current_frame >= frames.size())
   {
-    if (number_loops >= 0 && ++loop_counter >= number_loops)
+    if (++loop_counter >= number_loops)
     {
       finished = true;
       frame_counter = 0;

@@ -2,6 +2,7 @@
 #include "map_sprites.hpp"
 
 #include "map_mode.hpp"
+#include "map_stats.hpp"
 #include "../../core/video_manager.hpp"
 #include "../../core/script_read.hpp"
 #include "../../core/system.hpp"
@@ -18,6 +19,8 @@ VirtualSprite::VirtualSprite(MapObjectDrawLayer _layer)
   , movement_speed(8.f)
   , moving(false)
   , has_moved(false)
+  , attacking(false)
+  , finished_attacking(true)
   , direction(DIRECTION_SOUTH)
 {
   object_type = VIRTUAL_TYPE;
@@ -27,7 +30,7 @@ void VirtualSprite::Update()
 {
   has_moved = false;
 
-  if (moving)
+  if (IsMoving())
     SetNextPosition();
 }
 
@@ -312,6 +315,8 @@ bool MapSprite::LoadAnimations(const std::string& _filepath)
     int tile_width = sprite_script.ReadData<int>("width", -1);
     int tile_height = sprite_script.ReadData<int>("width", -1);
 
+    int num_loops = sprite_script.ReadData<int>("num_loops", -1);
+
     int num_frames = sprite_script.ReadData<int>("num_frames", -1);
     int frame_time = sprite_script.ReadData<int>("frame_time", -1);
 
@@ -356,8 +361,10 @@ bool MapSprite::LoadAnimations(const std::string& _filepath)
       animations[animation_name]->AddFrame(resource_id, frame_time);
       sprite_script.CloseTable(); // Closes {x, y}
     }
-
     sprite_script.CloseTable(); // Closes frame_rects
+
+    animations[animation_name]->SetNumberLoops(num_loops);
+
     sprite_script.CloseTable(); // Closes animation[i]
   }
   return true;
@@ -373,17 +380,33 @@ void MapSprite::Update()
   std::string new_anim = "";
   if (IsMoving())
     new_anim += "walk-";
+  if (IsAttacking())
+  {
+    if (animations[current_animation]->IsFinished())
+    {
+      animations[current_animation]->Reset();
+      attacking = false;
+      finished_attacking = true;
+    }
+    else
+    {
+      animations[current_animation]->SetFinished(false);
+      new_anim = "attack-";
+      finished_attacking = false;
+    }
+  }
   else
     new_anim += "idle-";
 
-  if(direction == DIRECTION_NORTH || direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST)
-      new_anim += "north";
-  else if(direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_SOUTHEAST)
-      new_anim += "south";
-  else if(direction == DIRECTION_WEST || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_NORTHWEST)
-      new_anim += "west";
-  else if(direction == DIRECTION_EAST || direction == DIRECTION_SOUTHEAST || direction == DIRECTION_NORTHEAST)
-      new_anim += "east";
+  if (direction == DIRECTION_NORTH || direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST)
+    new_anim += "north";
+  else if (direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_SOUTHEAST)
+    new_anim += "south";
+  else if (direction == DIRECTION_WEST || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_NORTHWEST)
+    new_anim += "west";
+  else if (direction == DIRECTION_EAST || direction == DIRECTION_SOUTHEAST || direction == DIRECTION_NORTHEAST)
+    new_anim += "east";
+
 
   current_animation = new_anim;
 
@@ -420,10 +443,16 @@ void MapSprite::Draw()
 EnemySprite::EnemySprite()
   : MapSprite(GROUND_OBJECT)
   , state(State::HOSTILE)
+  , pattern(MovementPattern::NONE)
   , time_elapsed(0)
+  , stats(nullptr)
 {
   object_type = ENEMY_TYPE;
   moving = false;
+
+  stats = new Statistics();
+  stats->SetMaxHealth(100);
+  stats->SetCurrentHealth(100);
 }
 
 EnemySprite::~EnemySprite()
@@ -439,10 +468,22 @@ void EnemySprite::Update()
   switch (state)
   {
     case State::SPAWNING:
-
       break;
     case State::HOSTILE:
       UpdateHostile();
+      break;
+    case State::DYING:
+      current_animation = "death-south";
+
+      if (!current_animation.empty())
+      {
+        if (animations[current_animation]->IsFinished())
+        {
+          cout << "Enemy Dead" << endl;
+          state = State::DEAD;
+        }
+        animations[current_animation]->Update();
+      }
       break;
     case State::DEAD:
     default:
@@ -483,6 +524,12 @@ void EnemySprite::Draw()
 
 void EnemySprite::UpdateHostile()
 {
+  if (stats->GetCurrentHealth() <= 0)
+  {
+    cout << "Enemy Dying" << endl;
+    state = State::DYING;
+  }
+
   VirtualSprite* camera = MapMode::CurrentInstance()->GetCamera();
   sf::Vector2i camera_pos = camera->GetPosition();
 
@@ -497,11 +544,20 @@ void EnemySprite::UpdateHostile()
 
   time_elapsed += rpg_system::SystemManager->GetUpdateTime();
 
-  if (time_elapsed >= (rand() % 2000 + 750)) {
+  if (time_elapsed >= (rand() % 2000 + 750))
+  {
       SetRandomDirection();
       moving = true;
       time_elapsed = 0;
   }
+}
+
+
+void EnemySprite::TakeDamage(const int _raw)
+{
+  cout << "Taking Damage: " << _raw << endl;
+  stats->SetCurrentHealth(stats->GetCurrentHealth() - _raw);
+  cout << "Remaining Health: " << stats->GetCurrentHealth() << endl;
 }
 
 }

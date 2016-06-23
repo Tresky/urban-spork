@@ -35,12 +35,12 @@ VideoEngine::~VideoEngine()
 {
   IF_PRINT_DEBUG(VIDEO_DEBUG) << "VideoEngine destructor called" << endl;
 
+  if (screen_fader)
+    delete screen_fader;
   if (window->isOpen())
     window->close();
   if (window)
     delete window;
-  if (screen_fader)
-    delete screen_fader;
 }
 
 void VideoEngine::CreateWindow(unsigned int _width, unsigned int _height, string _title)

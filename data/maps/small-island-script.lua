@@ -44,6 +44,7 @@ function CreateCharacters()
   end
   hero:SetDimensions(32, 32);
   hero:LoadAnimations("data/entities/actor0-walking.lua");
+  hero:LoadAnimations("data/entities/actor0-attacking.lua");
 
   enemy0 = rpg_map_mode.EnemySprite.Create();
   enemy0:SetPosition(230, 178);

@@ -21,6 +21,7 @@ enum MapObjectDrawLayer
 
 namespace private_map_mode
 {
+class VirtualSprite;
 class MapSprite;
 class MapZone;
 
@@ -137,6 +138,8 @@ public:
   void DrawObjects();
 
   void DrawMapZones();
+
+  MapObject* FindClosestObject(const VirtualSprite* _source, const ObjectType _type, float _dist);
 private:
 
   unsigned int id_counter;

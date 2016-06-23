@@ -24,6 +24,7 @@ enum Direction
 
 namespace private_map_mode
 {
+class Statistics;
 
 class VirtualSprite: public MapObject
 {
@@ -67,6 +68,21 @@ public:
     return has_moved;
   }
 
+  void SetAttacking(bool _attacking)
+  {
+    attacking = _attacking;
+  }
+
+  bool IsAttacking() const
+  {
+    return attacking;
+  }
+
+  bool IsFinishedAttacking() const
+  {
+    return finished_attacking;
+  }
+
 protected:
   void SetNextPosition();
 
@@ -75,6 +91,10 @@ protected:
   bool moving;
 
   bool has_moved;
+
+  bool attacking;
+
+  bool finished_attacking;
 
   Direction direction;
 };
@@ -100,7 +120,6 @@ public:
   virtual void Draw();
 
 protected:
-
   std::string current_animation;
 
   std::map<std::string, rpg_video::AnimatedImage*> animations;
@@ -134,6 +153,8 @@ public:
     return state == State::HOSTILE;
   }
 
+  void TakeDamage(const int _raw);
+
 private:
   void UpdateHostile();
 
@@ -141,10 +162,20 @@ private:
   {
     SPAWNING = 0,
     HOSTILE,
+    DYING,
     DEAD
   } state;
 
+  enum MovementPattern
+  {
+    NONE = 0,
+    PATROL,
+    FOLLOW
+  } pattern;
+
   int time_elapsed;
+
+  Statistics* stats;
 };
 
 } // Private Map Mode namespace

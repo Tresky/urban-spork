@@ -21,6 +21,8 @@ struct KeyCode
   sf::Keyboard::Key down;
   sf::Keyboard::Key left;
   sf::Keyboard::Key right;
+
+  sf::Keyboard::Key attack;
 };
 
 }
@@ -97,6 +99,11 @@ public:
              down_key_state);
   }
 
+  bool IsAttackKeyPressed()
+  {
+    return attack_key_state;
+  }
+
 private:
   /**
    * Constructor
@@ -114,6 +121,8 @@ private:
   bool down_key_state;
   bool left_key_state;
   bool right_key_state;
+
+  bool attack_key_state;
 };
 
 }

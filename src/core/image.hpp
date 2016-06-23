@@ -191,6 +191,11 @@ public:
       finished = true;
   }
 
+  bool IsFinished() const
+  {
+    return finished;
+  }
+
   /**
    * Set the animation as finished as not.
    * @param _finished True will stop the animation, false starts it
