@@ -35,6 +35,8 @@ end
 
 function CreateCharacters()
   hero = rpg_map_mode.MapSprite.Create(0);
+  hero:SetDimensions(32, 32);
+  hero:SetMovementSpeed(6.0);
 
   if (rpg_global.GlobalManager:GetPreviousLocation() == "small-island1") then
     hero:SetPosition(256, rpg_global.GlobalManager:GetPreviousY());
@@ -42,12 +44,14 @@ function CreateCharacters()
   else
     hero:SetPosition(144, 144);
   end
-  hero:SetDimensions(32, 32);
   hero:LoadAnimations("data/entities/actor0-walking.lua");
   hero:LoadAnimations("data/entities/actor0-attacking.lua");
 
   enemy0 = rpg_map_mode.EnemySprite.Create();
-  enemy0:SetPosition(230, 178);
   enemy0:SetDimensions(32, 32);
+  enemy0:SetMovementSpeed(7.0);
+  enemy0:SetCenterPosition(256, 66);
   enemy0:LoadAnimations("data/entities/enemy0-walking.lua");
+  enemy0:AddWayPoint(256, 66);
+  enemy0:AddWayPoint(256, 240);
 end

@@ -220,8 +220,6 @@ private:
   // Total number of loops completed
   unsigned int loop_counter;
 
-  signed int frame_delta;
-
   // Set to true to stop the animation; false to play
   bool finished;
 

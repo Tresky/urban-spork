@@ -74,8 +74,8 @@ public:
    * \param _right  Float defining the right side of the rectangle
    * \param _bottom Float defining the bottom side of the rectangle
    */
-  MapRectangle(const int _left, const int _top,
-               const int _right, const int _bottom)
+  MapRectangle(const float _left, const float _top,
+               const float _right, const float _bottom)
     : left(_left)
     , top(_top)
     , right(_right)
@@ -83,13 +83,13 @@ public:
   {}
 
   //! X-value of the left of the rectangle
-  int left;
+  float left;
   //! Y-value of the top of the rectangle
-  int top;
+  float top;
   //! X-value of the right of the rectangle
-  int right;
+  float right;
   //! Y-value of the bottom of the rectangle
-  int bottom;
+  float bottom;
 
   /**
    * Static method to check for intersection between two objects
@@ -100,10 +100,23 @@ public:
    *
    * \param  _one First rectangle to compare
    * \param  _two Second rectangle to compare
-   * \return      True if _one and _two are intersecting
-   * 							somewhere, false otherwise
+   * \return True if _one and _two are intersecting, false otherwise
    */
   static bool CheckIntersection(const MapRectangle& _one, const MapRectangle& _two);
+
+  /**
+   * Static method to check if two MapRectangles are within a specific
+   * range of each other. The measurements for this function are taken
+   * from opposing edges. e.g. _one.left is compared to _two.right.
+   *
+   * \note Parameter order does not matter.
+   *
+   * \param  _one   First rectangle to compare
+   * \param  _two   Second rectangle to compare
+   * \param  _range Distance to check between the rectangles
+   * \return True if _one and _two are within _range pixels, false otherwise
+   */
+  static bool InRange(const MapRectangle& _one, const MapRectangle& _two, const int _range);
 }; // class MapRectangle
 
 

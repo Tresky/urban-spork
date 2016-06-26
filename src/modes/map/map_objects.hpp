@@ -44,6 +44,8 @@ public:
 
   MapRectangle GetGridCollisionRectangle(float tile_x, float tile_y) const;
 
+  bool IsCollidingWith(MapObject* other_object) const;
+
   MapObjectDrawLayer GetObjectDrawLayer() const
   {
     return draw_layer;
@@ -81,9 +83,6 @@ public:
 
   virtual void Update() = 0;
   virtual void Draw() = 0;
-
-  //bool ShouldDraw();
-
 
 protected:
   unsigned int object_id;

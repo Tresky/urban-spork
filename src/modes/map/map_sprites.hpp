@@ -68,6 +68,16 @@ public:
     return has_moved;
   }
 
+  void SetMovementSpeed(const float _speed)
+  {
+    movement_speed = _speed;
+  }
+
+  float GetMovementSpeed()
+  {
+    return movement_speed;
+  }
+
   void SetAttacking(bool _attacking)
   {
     attacking = _attacking;
@@ -153,6 +163,8 @@ public:
     return state == State::HOSTILE;
   }
 
+  void AddWayPoint(const int _x, const int _y);
+
   void TakeDamage(const int _raw);
 
 private:
@@ -166,16 +178,17 @@ private:
     DEAD
   } state;
 
-  enum MovementPattern
-  {
-    NONE = 0,
-    PATROL,
-    FOLLOW
-  } pattern;
 
   int time_elapsed;
 
+  int attack_range;
+  int aggro_range;
+  MapRectangle aggro_box;
+
   Statistics* stats;
+
+  std::vector<sf::Vector2i> way_points;
+  int current_way_point;
 };
 
 } // Private Map Mode namespace

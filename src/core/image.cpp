@@ -99,7 +99,6 @@ AnimatedImage::AnimatedImage(const unsigned int _width,
   , frame_counter(0)
   , number_loops(-1)
   , loop_counter(0)
-  , frame_delta(1)
   , finished(false)
   , position(0.f, 0.f)
 {}

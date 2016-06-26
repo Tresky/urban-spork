@@ -427,10 +427,10 @@ void MapMode::UpdateCameraFrame()
   frame.tile_x_start = static_cast<signed int>(position.x / 32 - rpg_video::VideoManager->GetScreenWidth() / 64);
   frame.tile_y_start = static_cast<signed int>(position.y / 32 - rpg_video::VideoManager->GetScreenHeight() / 64);
 
-  frame.screen_edges.left = (position.x) - rpg_video::VideoManager->GetScreenWidth() / 2;
-  frame.screen_edges.right = (position.x) + rpg_video::VideoManager->GetScreenWidth() / 2;
-  frame.screen_edges.top = (position.y) - rpg_video::VideoManager->GetScreenHeight() / 2;
-  frame.screen_edges.bottom = (position.y) + rpg_video::VideoManager->GetScreenHeight() / 2;
+  frame.screen_edges.left = position.x - rpg_video::VideoManager->GetScreenWidth() / 2;
+  frame.screen_edges.right = position.x + rpg_video::VideoManager->GetScreenWidth() / 2;
+  frame.screen_edges.top = position.y - rpg_video::VideoManager->GetScreenHeight() / 2;
+  frame.screen_edges.bottom = position.y + rpg_video::VideoManager->GetScreenHeight() / 2;
 
   frame.num_draw_x_axis = static_cast<int>(rpg_video::VideoManager->GetScreenWidth() / 32) + 3;
   frame.num_draw_y_axis = static_cast<int>(rpg_video::VideoManager->GetScreenHeight() / 32) + 3;

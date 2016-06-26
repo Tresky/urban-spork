@@ -59,6 +59,22 @@ MapRectangle MapObject::GetGridCollisionRectangle(float tile_x, float tile_y) co
   return rect;
 }
 
+bool MapObject::IsCollidingWith(MapObject* other_object) const
+{
+   if (!other_object)
+    return false;
+   if (collision_mask == NO_COLLISION)
+    return false;
+   if (other_object->GetCollisionMask() == NO_COLLISION)
+    return false;
+
+  MapRectangle other_rect = other_object->GetGridCollisionRectangle();
+  if (!MapRectangle::CheckIntersection(GetGridCollisionRectangle(), other_rect))
+    return false;
+
+  return collision_mask & other_object->GetCollisionMask();
+}
+
 void MapObject::SetDimensions(const int _x, const int _y)
 {
   dimensions = sf::Vector2i(_x, _y);
