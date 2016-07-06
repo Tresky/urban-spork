@@ -14,7 +14,7 @@ function Load()
 
   map:SetCamera(hero, 0);
 
-  camera_zone = rpg_map_mode.CameraZone.Create(320, 32, 352, 128);
+  camera_zone = rpg_map_mode.CameraZone.Create(320, 32, 322, 128);
   rpg_map_mode.MapTransitionEvent.Create("transition to new map", "small-island", "test");
 end
 

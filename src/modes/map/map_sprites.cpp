@@ -84,8 +84,8 @@ float VirtualSprite::CalculateDistanceMoved()
 
     // We cap the distance moved when in case of low FPS to avoid letting certain
     // sprites jump across blocking areas.
-    if (distance_moved > 1.0f)
-      distance_moved = 1.0f;
+    // if (distance_moved > 1.0f)
+    //   distance_moved = 1.0f;
 
     return distance_moved;
 }
@@ -446,7 +446,8 @@ EnemySprite::EnemySprite()
   , state(State::SPAWNING)
   , time_elapsed(0)
   , attack_range(45)
-  , aggro_range(32)
+  , base_aggro(20)
+  , aggro_range(base_aggro)
   , aggro_box(0, 0, 0, 0)
   , stats(nullptr)
 {
@@ -569,6 +570,8 @@ void EnemySprite::UpdateHostile()
 
   if (player_in_aggro)
   {
+    aggro_range = base_aggro + 8;
+
     // if (MapRectangle::InRange(this->GetGridCollisionRectangle(),
     //                           camera->GetGridCollisionRectangle(), 3))
     sf::Vector2i this_pos = GetCenterPosition();
@@ -580,20 +583,22 @@ void EnemySprite::UpdateHostile()
     }
     else
     {
-      cout << "Searching..." << endl;
+      // cout << "Searching..." << endl;
 
-      if (delta_pos.x < 0 && delta_pos.y < 0)
+      int tolerance = 3;
+
+      if (delta_pos.x < 0 - tolerance && delta_pos.y < 0 - tolerance)
         SetDirection(DIRECTION_SOUTHEAST);
-      else if (delta_pos.x < 0 && delta_pos.y > 0)
+      else if (delta_pos.x < 0 - tolerance && delta_pos.y > 0 + tolerance)
         SetDirection(DIRECTION_NORTHEAST);
-      else if (delta_pos.x < 0)
+      else if (delta_pos.x < 0 - tolerance)
         SetDirection(DIRECTION_EAST);
 
-      else if (delta_pos.x > 0 && delta_pos.y < 0)
+      else if (delta_pos.x > 0 + tolerance && delta_pos.y < 0 - tolerance)
         SetDirection(DIRECTION_SOUTHWEST);
-      else if (delta_pos.x > 0 && delta_pos.y > 0)
+      else if (delta_pos.x > 0 + tolerance && delta_pos.y > 0 + tolerance)
         SetDirection(DIRECTION_NORTHWEST);
-      else if (delta_pos.x > 0)
+      else if (delta_pos.x > 0 + tolerance)
         SetDirection(DIRECTION_WEST);
 
       else if (delta_pos.y < 0)
@@ -604,6 +609,8 @@ void EnemySprite::UpdateHostile()
     }
     return;
   }
+  else
+    aggro_range = base_aggro;
 
   // Handle monsters with way points.
   if (!way_points.empty())
@@ -644,6 +651,7 @@ void EnemySprite::UpdateHostile()
   }
 
   time_elapsed += rpg_system::SystemManager->GetUpdateTime();
+
 }
 
 void EnemySprite::AddWayPoint(const int _x, const int _y)

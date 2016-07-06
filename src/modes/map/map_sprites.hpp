@@ -182,6 +182,7 @@ private:
   int time_elapsed;
 
   int attack_range;
+  int base_aggro;
   int aggro_range;
   MapRectangle aggro_box;
 
