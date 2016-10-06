@@ -8,69 +8,70 @@
 
 #include "global/global.hpp"
 
-#include "../utils/lua_bridge.hpp"
-  using namespace luabridge;
+#include "../utils/sol2.hpp"
 
 using namespace rpg_script;
 
 void BindEngineCode()
 {
-  PRINT_DEBUG << "Binding C++ function to Lua" << endl;
+  PRINT_DEBUG << "Binding C++ functions to Lua" << endl;
 
   using namespace rpg_map_mode;
   using namespace private_map_mode;
   using namespace rpg_global;
 
-  getGlobalNamespace(ScriptManager->GetGlobalState())
-    .beginNamespace("rpg_map_mode")
-      .beginClass<MapMode>("MapMode")
-        .addStaticFunction("CurrentInstance", &MapMode::CurrentInstance)
-        .addFunction("GetEventSupervisor", &MapMode::GetEventSupervisor)
-        .addFunction("SetCamera", &MapMode::SetCamera)
-      .endClass()
+  sol::table map_mode_namespace = ScriptManager->GetGlobalState()->create_named_table("rpg_map_mode");
+  map_mode_namespace.new_usertype<MapMode>("MapMode",
+    "CurrentInstance", &MapMode::CurrentInstance,
+    "GetEventSupervisor", &MapMode::GetEventSupervisor,
+    "SetCamera", &MapMode::SetCamera
+  );
+  map_mode_namespace.new_usertype<MapObject>("MapObject",
+    "SetPosition", &MapObject::SetPosition,
+    "SetDimensions", &MapObject::SetDimensions,
+    "GetXPosition", &MapObject::GetXPosition,
+    "GetYPosition", &MapObject::GetYPosition
+  );
+  map_mode_namespace.new_usertype<VirtualSprite>("VirtualSprite",
+    "SetDirection", &VirtualSprite::SetDirectionInt,
+    sol::base_classes, sol::bases<MapObject>()
+  );
+  map_mode_namespace.new_usertype<MapSprite>("MapSprite",
+    "Create", &MapSprite::Create,
+    "LoadAnimations", &MapSprite::LoadAnimations,
+    sol::base_classes, sol::bases<MapObject, VirtualSprite>()
+  );
+  map_mode_namespace.new_usertype<EnemySprite>("EnemySprite",
+    "Create", &EnemySprite::Create,
+    sol::base_classes, sol::bases<MapSprite, MapObject, VirtualSprite>()
+  );
 
-      .beginClass<MapObject>("MapObject")
-        .addFunction("SetPosition", &MapObject::SetPosition)
-        .addFunction("SetDimensions", &MapObject::SetDimensions)
-        .addFunction("GetXPosition", &MapObject::GetXPosition)
-        .addFunction("GetYPosition", &MapObject::GetYPosition)
-      .endClass()
-      .deriveClass<VirtualSprite, MapObject>("VirtualSprite")
-        .addFunction("SetDirection", &VirtualSprite::SetDirectionInt)
-      .endClass()
-      .deriveClass<MapSprite, VirtualSprite>("MapSprite")
-        .addStaticFunction("Create", &MapSprite::Create)
-        .addFunction("LoadAnimations", &MapSprite::LoadAnimations)
-      .endClass()
-      .deriveClass<EnemySprite, MapSprite>("EnemySprite")
-        .addStaticFunction("Create", &EnemySprite::Create)
-      .endClass()
+  map_mode_namespace.new_usertype<EventSupervisor>("EventSupervisor",
+    "LaunchEventById", &EventSupervisor::LaunchEventById
+  );
+  map_mode_namespace.new_usertype<MapEvent>("MapEvent",
+    "IsFinished", &private_map_mode::MapEvent::IsFinished,
+    "GetEventId", &private_map_mode::MapEvent::GetEventId
+  );
+  map_mode_namespace.new_usertype<MapTransitionEvent>("MapTransitionEvent",
+    "Create", &MapTransitionEvent::Create,
+    sol::base_classes, sol::bases<MapEvent>()
+  );
 
-      .beginClass<EventSupervisor>("EventSupervisor")
-        .addFunction("LaunchEventById", &EventSupervisor::LaunchEventById)
-      .endClass()
-      .beginClass<MapEvent>("MapEvent")
-        .addFunction("IsFinished", &private_map_mode::MapEvent::IsFinished)
-        .addFunction("GetEventId", &private_map_mode::MapEvent::GetEventId)
-      .endClass()
-      .deriveClass<MapTransitionEvent, MapEvent>("MapTransitionEvent")
-        .addStaticFunction("Create", &MapTransitionEvent::Create)
-      .endClass()
+  map_mode_namespace.new_usertype<MapZone>("MapZone");
+  map_mode_namespace.new_usertype<CameraZone>("CameraZone",
+    "Create", &CameraZone::Create,
+    "IsCameraInside", &CameraZone::IsCameraInside,
+    sol::base_classes, sol::bases<MapZone>()
+  );
 
-      .beginClass<MapZone>("MapZone")
-      .endClass()
-      .deriveClass<CameraZone, MapZone>("CameraZone")
-        .addStaticFunction("Create", &CameraZone::Create)
-        .addFunction("IsCameraInside", &CameraZone::IsCameraInside)
-      .endClass()
-    .endNamespace()
 
-    .beginNamespace("rpg_global")
-      .addVariable("GlobalManager", &rpg_global::GlobalManager)
-      .beginClass<GlobalEngine>("GlobalEngine")
-        .addFunction("GetPreviousLocation", &GlobalEngine::GetPreviousLocation)
-        .addFunction("SetPreviousPosition", &GlobalEngine::SetPreviousPosition)
-        .addFunction("GetPreviousX", &GlobalEngine::GetPreviousX)
-        .addFunction("GetPreviousY", &GlobalEngine::GetPreviousY)
-      .endClass();
+  sol::table global_namespace = ScriptManager->GetGlobalState()->create_named_table("rpg_global");
+  global_namespace.new_usertype<GlobalEngine>("GlobalEngine",
+    "GetPreviousLocation", &GlobalEngine::GetPreviousLocation,
+    "SetPreviousPosition", &GlobalEngine::SetPreviousPosition,
+    "GetPreviousX", &GlobalEngine::GetPreviousX,
+    "GetPreviousY", &GlobalEngine::GetPreviousY
+  );
+  global_namespace["GlobalManager"] = rpg_global::GlobalManager;
 }

@@ -14,8 +14,8 @@ namespace private_map_mode
 {
 
 MapEvent::MapEvent(const std::string& _id)
-  : id(_id)
-  , active(false)
+  : active(false)
+  , id(_id)
 {
   MapMode* mm = MapMode::CurrentInstance();
   if (!mm)

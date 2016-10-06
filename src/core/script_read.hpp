@@ -64,10 +64,8 @@ public:
   virtual void CloseFile();
 
   /**
-   * Opens a table in the Lua script that has a string
-   * type name denoting it. This is opposed to an integer
-   * named table. For opening a table with an integer name
-   * please see OpenTableIntegers().
+   * Templated function that opens a Lua table with a name
+   * that is either a string or integer.
    *
    * This function will check to see if the table being
    * requested if available at the current place in the table
@@ -75,32 +73,11 @@ public:
    * the function will attempt to open the table from the
    * global scope. If that also fails, an error will be generated.
    *
-   * \see OpenTableIntegers()
-   *
-   * \param _table_name String containing the name of the table to open
+   * \param _table_name String or int containing the name of the table to open
    * \return True if successful, false otherwise
 
    */
-  bool OpenTable(const std::string& _table_name);
-
-  /**
-   * Opens a table in the Lua script that has an integer
-   * type name denoting it. This is opposed to a string
-   * named table. For opening a table with a string name
-   * please see OpenTable()
-   *
-   * This function will check to see if the table being
-   * requested if available at the current place in the table
-   * tree. If it is, it will open it from there; otherwise,
-   * the function will attempt to open the table from the
-   * global scope. If that also fails, an error will be generated.
-   *
-   * \see OpenTable()
-   *
-   * \param  _index Integer value denoting the table to open
-   * \return True if successful, false otherwise
-   */
-  bool OpenTableIntegers(const int _index);
+  template <class T> bool OpenTable(const T& _table_name);
 
   /**
    * Closes the currently open table. All opened tables
@@ -111,26 +88,15 @@ public:
   void CloseTable();
 
   /**
-   * Templated function to read data from the Lua script.
-   * There are two versions of this function; this version
-   * is specialized to read data from properties with <b>string</b>
-   * type identifiers.
-   * \param  _key     String for key to read
+   * Templated functions to read data from the Lua script. This
+   * function can read values from tables with <b>string</b> or
+   * <b>integer</b> key names.
+   * \param  _key     String or int for key to read
    * \param  _default Default error value; will be returned if _key isn't found
    * \return Value found at the [_key], _default if error
    */
   template <class T> T ReadData(const std::string& _key, T _default);
-
-  /**
-   * Templated function to read data from the Lua script.
-   * There are two versions of this function; this version
-   * is specialized to read data from properties with <b>integer</b>
-   * type identifiers.
-   * \param  _key     Integer for key to read
-   * \param  _default Default error value; will be returned if _key isn't found
-   * \return Value found at the [_key], _default if error
-   */
-  template <class T> T ReadData(const int _key, T _default);
+  template <class T> T ReadData(const int& _key, T _default);
 
   /**
    * Calls a function from the global scope of the current
@@ -141,34 +107,88 @@ public:
 
 private:
   //! Pointer to Lua State; copied from ScriptEngine
-  lua_State* L;
+  sol::state* L;
 
   //! Stack containing references to all of the open tables
-  std::stack<luabridge::LuaRef> open_tables;
+  std::stack<sol::table> open_tables;
 }; // class ReadScript
 
-template <class T> T ReadScript::ReadData(const std::string& _key, T _default)
+template <class T> bool ReadScript::OpenTable(const T& _table_name)
 {
-  luabridge::LuaRef ref = open_tables.top()[_key];
-  if (ref.isNil())
+  if (!IsOpen())
   {
-    errors.push(ScriptError { ScriptError::DATA_NOT_FOUND, "Data not found in table: " + _key });
-    return _default;
+    errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "No script open. Call OpenFile() first." });
+    return false;
   }
 
-  return ref.cast<T>();
+  // No tables opened, so we need to open globally
+  sol::table temp;
+  if (open_tables.empty())
+    temp = (*L)[_table_name];
+  // Otherwise open from the most recently opened table
+  else
+    temp = open_tables.top()[_table_name];
+
+  // if (temp.get_type() == sol::nil)
+  // {
+  //   errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Table not found in script: " + _table_name });
+  //   return false;
+  // }
+  open_tables.push(temp);
+
+  return true;
 }
 
-template <class T> T ReadScript::ReadData(const int _key, T _default)
+template <class T> T ReadScript::ReadData(const std::string& _path, T _default)
 {
-  luabridge::LuaRef ref = open_tables.top()[_key];
-  if (ref.isNil())
+  // Make sure the file is open before reading data
+  if (!IsOpen())
   {
-    errors.push(ScriptError { ScriptError::DATA_NOT_FOUND, "Data not found in table: " + std::to_string(_key) });
+    errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "No script open. Call OpenFile() first." });
     return _default;
   }
 
-  return ref.cast<T>();
+  // No tables opened, so we need to read globally
+  T temp;
+  if (open_tables.empty())
+    temp = (*L)[_path].get_or<T>(_default);
+  // Otherwise open from the most recently opened table
+  else
+    temp = open_tables.top()[_path].get_or<T>(_default);
+
+  if (temp == _default)
+  {
+    errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Table not found in script: " + _path });
+    return _default;
+  }
+
+  return temp;
+}
+
+template <class T> T ReadScript::ReadData(const int& _path, T _default)
+{
+  // Make sure the file is open before reading data
+  if (!IsOpen())
+  {
+    errors.push(ScriptError { ScriptError::FILE_NOT_OPENED, "No script open. Call OpenFile() first." });
+    return _default;
+  }
+
+  // No tables opened, so we need to read globally
+  T temp;
+  if (open_tables.empty())
+    temp = (*L)[_path].get_or<T>(_default);
+  // Otherwise open from the most recently opened table
+  else
+    temp = open_tables.top()[_path].get_or<T>(_default);
+
+  if (temp == _default)
+  {
+    errors.push(ScriptError { ScriptError::TABLE_NOT_FOUND, "Table not found in script: " + std::to_string(_path) });
+    return _default;
+  }
+
+  return temp;
 }
 
 } // namespace rpg_script

@@ -23,8 +23,7 @@ extern "C" {
   #include "lauxlib.h"
   #include "lualib.h"
 }
-#include "../utils/lua_bridge.hpp"
-  using namespace luabridge;
+#include "../utils/sol2.hpp"
 
 namespace rpg_script
 {
@@ -190,7 +189,7 @@ public:
 
 protected:
   //! Lua state to load with; this is copied from ScriptManager
-  lua_State *L;
+  sol::state* L;
 
   //! Filename of the Lua script being used
   std::string filename;
@@ -236,7 +235,7 @@ public:
    * Returns the global Lua state.
    * \return Pointer to the global Lua state object
    */
-  lua_State* GetGlobalState()
+  sol::state* GetGlobalState()
   {
     return L;
   }
@@ -248,7 +247,7 @@ private:
   ScriptEngine();
 
   //! Lua state object
-  lua_State* L;
+  sol::state* L;
 
   //! Hash-map that maps all of the open Lua scripts to their filenames as keys
   std::map<std::string, Script*> open_scripts;

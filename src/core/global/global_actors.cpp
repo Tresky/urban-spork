@@ -21,7 +21,7 @@ bool GlobalCharacter::LoadAnimations(const std::string& _filepath)
     return false;
   }
 
-  sprite_script.OpenTable("animations"); // Opens animations
+  sprite_script.OpenTable<std::string>("animations"); // Opens animations
 
   string filepath = sprite_script.ReadData<std::string>("filepath", "");
   int num_animations = sprite_script.ReadData<int>("num_animations", -1);
@@ -36,7 +36,7 @@ bool GlobalCharacter::LoadAnimations(const std::string& _filepath)
   // Loop through all animation tables
   for (int i = 0; i < num_animations; ++i)
   {
-    sprite_script.OpenTableIntegers(i); // Opens animation[i]
+    sprite_script.OpenTable<int>(i); // Opens animation[i]
 
     string animation_name = sprite_script.ReadData<std::string>("name", "");
 
@@ -46,7 +46,7 @@ bool GlobalCharacter::LoadAnimations(const std::string& _filepath)
     int num_frames = sprite_script.ReadData<int>("num_frames", -1);
     int frame_time = sprite_script.ReadData<int>("frame_time", -1);
 
-    sprite_script.OpenTable("frame_rects"); // Opens frame_rects
+    sprite_script.OpenTable<std::string>("frame_rects"); // Opens frame_rects
 
     // Check for any errors so far
     if (sprite_script.HasError())
@@ -58,7 +58,7 @@ bool GlobalCharacter::LoadAnimations(const std::string& _filepath)
     animations[animation_name] = new AnimatedImage(tile_width, tile_height);
     for (int j = 1; j < num_frames + 1; ++j)
     {
-      sprite_script.OpenTableIntegers(j); // Open {x, y}
+      sprite_script.OpenTable<int>(j); // Open {x, y}
 
       int x = sprite_script.ReadData<int>("x", -1);
       int y = sprite_script.ReadData<int>("y", -1);

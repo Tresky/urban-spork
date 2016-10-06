@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++11 -pedantic -Wall
+CXXFLAGS = -std=c++14 -pedantic -Wall
 
 # Relative directories
 ODIR = obj

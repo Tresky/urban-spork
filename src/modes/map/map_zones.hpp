@@ -46,7 +46,7 @@ public:
   CameraZone(const int _left, const int _top,
              const int _right, const int _bottom);
 
-  ~CameraZone();
+  ~CameraZone() {}
 
   static CameraZone* Create(const int _left, const int _top,
                             const int _right, const int _bottom);

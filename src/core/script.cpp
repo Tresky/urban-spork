@@ -1,8 +1,7 @@
 #include "../utils/globals.hpp"
 #include "script.hpp"
 
-#include "../utils/lua_bridge.hpp"
-using namespace luabridge;
+#include "../utils/sol2.hpp"
 
 namespace rpg_script
 {
@@ -14,18 +13,15 @@ bool SCRIPT_DEBUG = true;
  * ScriptEngine Class Definitions *
  **********************************/
 ScriptEngine::ScriptEngine()
-  : L(luaL_newstate())
+  : L(new sol::state())
 {
-  luaL_openlibs(L);
+  L->open_libraries(sol::lib::base, sol::lib::package);
   IF_PRINT_DEBUG(SCRIPT_DEBUG) << "ScriptEngine constructor called" << endl;
 }
 
 ScriptEngine::~ScriptEngine()
 {
   IF_PRINT_DEBUG(SCRIPT_DEBUG) << "ScriptEngine destructor called" << endl;
-
-  if (L)
-    lua_close(L);
 }
 
 bool ScriptEngine::InitSingleton()

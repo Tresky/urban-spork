@@ -284,6 +284,8 @@ bool MapMode::LoadMap()
 
   if (!read_script->OpenFile(script_name))
   {
+    if (read_script->HasError())
+      read_script->PrintErrors();
     PRINT_ERROR << "Failed to open tilemap script: " << script_name << endl;
     return false;
   }
@@ -291,7 +293,7 @@ bool MapMode::LoadMap()
   // cout << "---------- Tilemap Information ----------" << endl;
   // cout << "| File: " << _lua_filepath << endl;
 
-  read_script->OpenTable("map_data");
+  read_script->OpenTable<std::string>("map_data");
 
   string script_path = read_script->ReadData<string>("script_path", "");
 
@@ -313,7 +315,7 @@ bool MapMode::LoadMap()
   if (!tile_supervisor)
     tile_supervisor = new private_map_mode::TileSupervisor();
 
-  read_script->OpenTable("tilesets");
+  read_script->OpenTable<std::string>("tilesets");
   int num_tilesets = read_script->ReadData<int>("count", -1);
 
   // cout << "| Tileset Count: " << num_tilesets << endl;
@@ -339,7 +341,7 @@ bool MapMode::LoadMap()
   // cout << "|\n----------- Layer Information -----------" << endl;
 
   // Load in the layer data
-  read_script->OpenTable("layers");
+  read_script->OpenTable<std::string>("layers");
   int num_layers = read_script->ReadData<int>("num_layers", -1);
 
   // cout << "| Layer Count: " << num_layers << endl;
@@ -357,7 +359,11 @@ bool MapMode::LoadMap()
 
   for (int l = 0; l < num_layers; ++l)
   {
-    read_script->OpenTableIntegers(l);
+    if (!read_script->OpenTable<int>(l))
+    {
+      read_script->PrintErrors();
+      return false;
+    }
 
     MapLayerType type;
     string str_type = read_script->ReadData<string>("type", "");
@@ -379,13 +385,18 @@ bool MapMode::LoadMap()
     private_map_mode::MapLayer layer(type);
     for (int row = 0; row < map_height; ++row)
     {
-      read_script->OpenTableIntegers(row + 1);
       // cout << "|\t";
+      if (!read_script->OpenTable<int>(row + 1))
+      {
+        read_script->PrintErrors();
+        return false;
+      }
+
       vector<int> temp;
       for (int col = 0; col < map_width; ++col)
       {
-        int id = read_script->ReadData<int>(col + 1, -1);
         // cout << setw(3) << id << " ";
+        int id = read_script->ReadData<int>(col + 1, -2);
         temp.push_back(id);
       }
       // cout << endl;
@@ -406,8 +417,7 @@ bool MapMode::LoadMap()
 
   // cout << "| " << "Static Collision Matrix" << endl;
 
-  read_script->OpenTable("collision");
-
+  read_script->OpenTable<std::string>("collision");
   if (read_script->HasError())
   {
     read_script->PrintErrors();
@@ -416,7 +426,7 @@ bool MapMode::LoadMap()
 
   for (int i = 0; i < map_height; ++i)
   {
-    read_script->OpenTableIntegers(i + 1);
+    read_script->OpenTable<int>(i + 1);
     // cout << "|\t";
     vector<int> temp;
     for (int j = 0; j < map_width; ++j)
@@ -473,7 +483,7 @@ bool MapMode::LoadTileset(const string& _lua_filepath)
     return false;
   }
 
-  tileset_script.OpenTable("tileset_data");
+  tileset_script.OpenTable<std::string>("tileset_data");
 
   string image_name = tileset_script.ReadData<string>("name", "");
   string image_path = tileset_script.ReadData<string>("image_path", "");
