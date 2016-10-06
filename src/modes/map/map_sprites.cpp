@@ -321,7 +321,7 @@ bool MapSprite::LoadAnimations(const std::string& _filepath)
     int tile_width = sprite_script.ReadData<int>("width", -1);
     int tile_height = sprite_script.ReadData<int>("width", -1);
 
-    int num_loops = sprite_script.ReadData<int>("num_loops", -1);
+    int num_loops = sprite_script.ReadData<int>("num_loops", -2);
 
     int num_frames = sprite_script.ReadData<int>("num_frames", -1);
     int frame_time = sprite_script.ReadData<int>("frame_time", -1);

@@ -28,12 +28,14 @@ void BindEngineCode()
   );
   map_mode_namespace.new_usertype<MapObject>("MapObject",
     "SetPosition", &MapObject::SetPosition,
+    "SetCenterPosition", &MapObject::SetCenterPosition,
     "SetDimensions", &MapObject::SetDimensions,
     "GetXPosition", &MapObject::GetXPosition,
     "GetYPosition", &MapObject::GetYPosition
   );
   map_mode_namespace.new_usertype<VirtualSprite>("VirtualSprite",
     "SetDirection", &VirtualSprite::SetDirectionInt,
+    "SetMovementSpeed", &VirtualSprite::SetMovementSpeed,
     sol::base_classes, sol::bases<MapObject>()
   );
   map_mode_namespace.new_usertype<MapSprite>("MapSprite",
@@ -43,6 +45,7 @@ void BindEngineCode()
   );
   map_mode_namespace.new_usertype<EnemySprite>("EnemySprite",
     "Create", &EnemySprite::Create,
+    "AddWayPoint", &EnemySprite::AddWayPoint,
     sol::base_classes, sol::bases<MapSprite, MapObject, VirtualSprite>()
   );
   map_mode_namespace.new_usertype<EventSupervisor>("EventSupervisor",
