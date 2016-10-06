@@ -10,8 +10,11 @@
 #include "map_objects.hpp"
 #include "map_sprites.hpp"
 #include "map_events.hpp"
+#include "map_combat.hpp"
 #include "map_utils.hpp"
   using namespace rpg_input;
+  using namespace rpg_script;
+  using namespace rpg_map_mode::private_map_mode;
   using rpg_map_mode::private_map_mode::MapRectangle;
   using rpg_map_mode::private_map_mode::MapLayerType;
 
@@ -28,8 +31,7 @@ MapMode::MapMode(const string& _map_name)
   , delta_x(0)
   , delta_y(0)
   , tile_supervisor(nullptr)
-  , temp(nullptr)
-  , enemy(nullptr)
+  , event_supervisor(nullptr)
   , read_script(nullptr)
   , active(true)
 {
@@ -37,42 +39,11 @@ MapMode::MapMode(const string& _map_name)
 
   current_instance = this;
 
-  tile_supervisor = new private_map_mode::TileSupervisor();
-  object_supervisor = new private_map_mode::ObjectSupervisor();
-  event_supervisor = new private_map_mode::EventSupervisor();
+  tile_supervisor = new TileSupervisor();
+  object_supervisor = new ObjectSupervisor();
+  event_supervisor = new EventSupervisor();
 
-  // temp = new private_map_mode::MapSprite(MapObjectDrawLayer::GROUND_OBJECT);
-  // if (!temp->LoadAnimations("data/entities/actor0-walking.lua"))
-  // {
-  //   PRINT_ERROR << "Failed to load animations for character" << endl;
-  //   delete temp;
-  //   temp = nullptr;
-  // }
-  // temp->SetCurrentAnimation("idle-south");
-  // temp->SetDirection(DIRECTION_SOUTH);
-  // temp->SetCenterPosition(128, 128);
-  // temp->SetDimensions(32, 32);
-  // // object_supervisor->RegisterObject(temp);
-  // camera = temp;
-
-  // enemy = private_map_mode::EnemySprite::Create();
-  // if (!enemy->LoadAnimations("data/entities/enemy0-walking.lua"))
-  // {
-  //   PRINT_ERROR << "Failed to load animations for character" << endl;
-  //   delete enemy;
-  //   enemy = nullptr;
-  // }
-  // enemy->SetCurrentAnimation("idle-south");
-  // enemy->SetDirection(DIRECTION_SOUTH);
-  // enemy->SetCenterPosition(320, 320);
-  // enemy->SetDimensions(32, 32);
-  // object_supervisor->RegisterObject(enemy);
-
-  //camera_timer.InitTimer(0, 1);
-
-  //camera = new private_map_mode::Camera(sf::Vector2i(32, 32));
-
-  //camera->SetCenterPosition(128, 128);
+  read_script = new ReadScript();
 
   if (!LoadMap())
     PRINT_ERROR << "Failed to load Lua tilemap: " << map_name << endl;
@@ -80,25 +51,14 @@ MapMode::MapMode(const string& _map_name)
 
 MapMode::~MapMode()
 {
-  delete temp; temp = nullptr;
-  //delete camera; camera = nullptr;
   delete tile_supervisor; tile_supervisor = nullptr;
+  delete object_supervisor; object_supervisor = nullptr;
+  delete event_supervisor; event_supervisor = nullptr;
   delete read_script; read_script = nullptr;
 }
 
 void MapMode::SetCamera(private_map_mode::VirtualSprite* _sprite, const float _duration)
 {
-  // if (camera == _sprite)
-  //   return;
-  //
-  // if (_duration > 0)
-  // {
-  //   delta_x = camera->GetPosition().x - _sprite->GetPosition().x;
-  //   delta_y = camera->GetPosition().y - _sprite->GetPosition().y;
-  //   camera_timer.Reset();
-  //   camera_timer.SetDuration(_duration);
-  //   camera_timer.Run();
-  // }
   camera = _sprite;
 }
 
@@ -111,11 +71,14 @@ void MapMode::Update()
 
   tile_supervisor->Update();
   object_supervisor->Update();
-  //camera_timer.Update();
 
+  // Call the Lua Update() function
   read_script->CallFunction("Update");
   if (read_script->HasError())
     read_script->PrintErrors();
+
+  if (InputManager->IsAttackKeyPressed())
+    HandleAttacking();
 
   if (!InputManager->IsUpKeyPressed() && !InputManager->IsDownKeyPressed() &&
       !InputManager->IsLeftKeyPressed() && !InputManager->IsRightKeyPressed())
@@ -152,88 +115,22 @@ void MapMode::Update()
   event_supervisor->Update();
 
   GameMode::Update();
+}
 
-  // < TEMPORARY STUFF BEGIN
-  // rpg_global::GlobalCharacter* hero = rpg_global::GlobalManager->GetHero();
-  // if (!hero)
-  //   return;
-  //
-  // sf::Vector2i char_pos = camera->GetPosition() - sf::Vector2i(16, 16);//camera->GetCenterPosition() - sf::Vector2f(16, 16);
-  // sf::Vector2i position_delta = sf::Vector2i(0, 0);
-  //
-  // temp->Update();
-  //
-  // sf::Vector2i curr_tile(char_pos.x / 32, char_pos.y / 32);
-  // MapRectangle char_rect(char_pos.x, char_pos.y,
-  //                        char_pos.x + 32, char_pos.y + 32);
-  //
-  // // Set Idle Animations
-  // if (rpg_input::InputManager->NoMovementKeysPressed())
-  // {
-  //   string direction = temp->GetDirection();
-  //   temp->SetCurrentAnimation("idle-" + direction);
-  // }
-  //
-  // if (rpg_input::InputManager->IsUpKeyPressed())
-  // {
-  //   sf::Vector2i check_tile(curr_tile.x, curr_tile.y - 1);
-  //   MapRectangle tile_rect(check_tile.x * 32, check_tile.y * 32,
-  //                          check_tile.x * 32 + 32, check_tile.y * 32 + 32);
-  //   if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
-  //       !MapRectangle::CheckIntersection(char_rect, tile_rect))
-  //   {
-  //     temp->SetCurrentAnimation("walk-north");
-  //     temp->SetDirection("north");
-  //     temp->SetMoving(true);
-  //     //position_delta.y -= 5;
-  //   }
-  // }
-  // if (rpg_input::InputManager->IsDownKeyPressed())
-  // {
-  //   sf::Vector2i check_tile(curr_tile.x, curr_tile.y + 1);
-  //   MapRectangle tile_rect(check_tile.x * 32, check_tile.y * 32,
-  //                          check_tile.x * 32 + 32, check_tile.y * 32 + 32);
-  //   if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
-  //       !MapRectangle::CheckIntersection(char_rect, tile_rect))
-  //   {
-  //     temp->SetCurrentAnimation("walk-south");
-  //     temp->SetDirection("south");
-  //     temp->SetMoving(true);
-  //     //position_delta.y += 5;
-  //   }
-  // }
-  // if (rpg_input::InputManager->IsLeftKeyPressed())
-  // {
-  //   sf::Vector2i check_tile(curr_tile.x - 1, curr_tile.y);
-  //   MapRectangle tile_rect(check_tile.x * 32, check_tile.y * 32,
-  //                          check_tile.x * 32 + 32, check_tile.y * 32 + 32);
-  //   if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
-  //       !MapRectangle::CheckIntersection(char_rect, tile_rect))
-  //   {
-  //     temp->SetCurrentAnimation("walk-west");
-  //     temp->SetDirection("west");
-  //     temp->SetMoving(true);
-  //     //position_delta.x -= 5;
-  //   }
-  // }
-  // if (rpg_input::InputManager->IsRightKeyPressed())
-  // {
-  //   sf::Vector2i check_tile(curr_tile.x + 1, curr_tile.y);
-  //   MapRectangle tile_rect(check_tile.x * 32, check_tile.y * 32,
-  //                          check_tile.x * 32 + 32, check_tile.y * 32 + 32);
-  //
-  //   if (!object_supervisor->IsMapCollision(check_tile.x, check_tile.y) ||
-  //       !MapRectangle::CheckIntersection(char_rect, tile_rect))
-  //   {
-  //     temp->SetCurrentAnimation("walk-east");
-  //     temp->SetDirection("east");
-  //     temp->SetMoving(true);
-  //     //position_delta.x += 5;
-  //   }
-  // }
-  //
-  // //camera->SetCenterPosition(char_pos.x + position_delta.x + 16, char_pos.y + position_delta.y + 16);
-  //temp->Update();
+void MapMode::HandleAttacking()
+{
+  if (!camera->IsFinishedAttacking())
+    return;
+
+  camera->SetAttacking(true);
+  MapObject* closest_obj = object_supervisor->FindClosestObject(camera, ObjectType::ENEMY_TYPE, 3);
+  if (!closest_obj)
+    return;
+
+  EnemySprite* closest_enemy = reinterpret_cast<EnemySprite*>(closest_obj);
+
+  cout << "Attacking " << closest_enemy->GetObjectId() << endl;
+  closest_enemy->TakeDamage(10);
 }
 
 float MapMode::GetScreenXCoordinate(float _tile_position_x) const
@@ -277,7 +174,7 @@ bool MapMode::LoadMap()
   std::string script_name = "data/maps/" + map_name + "-map.lua";
 
   if (!read_script)
-    read_script = new rpg_script::ReadScript();
+    read_script = new ReadScript();
 
   if (read_script->IsOpen())
     read_script->CloseFile();
@@ -540,10 +437,10 @@ void MapMode::UpdateCameraFrame()
   frame.tile_x_start = static_cast<signed int>(position.x / 32 - rpg_video::VideoManager->GetScreenWidth() / 64);
   frame.tile_y_start = static_cast<signed int>(position.y / 32 - rpg_video::VideoManager->GetScreenHeight() / 64);
 
-  frame.screen_edges.left = (position.x) - rpg_video::VideoManager->GetScreenWidth() / 2;
-  frame.screen_edges.right = (position.x) + rpg_video::VideoManager->GetScreenWidth() / 2;
-  frame.screen_edges.top = (position.y) - rpg_video::VideoManager->GetScreenHeight() / 2;
-  frame.screen_edges.bottom = (position.y) + rpg_video::VideoManager->GetScreenHeight() / 2;
+  frame.screen_edges.left = position.x - rpg_video::VideoManager->GetScreenWidth() / 2;
+  frame.screen_edges.right = position.x + rpg_video::VideoManager->GetScreenWidth() / 2;
+  frame.screen_edges.top = position.y - rpg_video::VideoManager->GetScreenHeight() / 2;
+  frame.screen_edges.bottom = position.y + rpg_video::VideoManager->GetScreenHeight() / 2;
 
   frame.num_draw_x_axis = static_cast<int>(rpg_video::VideoManager->GetScreenWidth() / 32) + 3;
   frame.num_draw_y_axis = static_cast<int>(rpg_video::VideoManager->GetScreenHeight() / 32) + 3;

@@ -1138,7 +1138,7 @@ HTML_EXTRA_FILES       =
 # http://en.wikipedia.org/wiki/Hue for more information. For instance the value
 # 0 represents red, 60 is yellow, 120 is green, 180 is cyan, 240 is blue, 300
 # purple, and 360 is red again.
-# Minimum value: 0, maximum value: 359, default value: 220.
+# Minimum value: 0, maximum value: 329, default value: 220.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_COLORSTYLE_HUE    = 220

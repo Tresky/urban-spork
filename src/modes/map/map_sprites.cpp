@@ -2,6 +2,7 @@
 #include "map_sprites.hpp"
 
 #include "map_mode.hpp"
+#include "map_stats.hpp"
 #include "../../core/video_manager.hpp"
 #include "../../core/script_read.hpp"
 #include "../../core/system.hpp"
@@ -18,6 +19,8 @@ VirtualSprite::VirtualSprite(MapObjectDrawLayer _layer)
   , movement_speed(8.f)
   , moving(false)
   , has_moved(false)
+  , attacking(false)
+  , finished_attacking(true)
   , direction(DIRECTION_SOUTH)
 {
   object_type = VIRTUAL_TYPE;
@@ -27,7 +30,7 @@ void VirtualSprite::Update()
 {
   has_moved = false;
 
-  if (moving)
+  if (IsMoving())
     SetNextPosition();
 }
 
@@ -81,8 +84,8 @@ float VirtualSprite::CalculateDistanceMoved()
 
     // We cap the distance moved when in case of low FPS to avoid letting certain
     // sprites jump across blocking areas.
-    //if (distance_moved > 1.0f)
-      //distance_moved = 1.0f;
+    // if (distance_moved > 1.0f)
+    //   distance_moved = 1.0f;
 
     return distance_moved;
 }
@@ -96,6 +99,10 @@ void VirtualSprite::SetNextPosition()
   // TPNOTE: This is an integer now because, for some reason, if
   // left as a float, characters move quicker up and left than they do
   // right and down. Still not sure why...
+  // TPNOTE: This has to do with floating point precision. First step
+  // to fixing this is to make all SetPosition() and GetPosition()
+  // functions based on float's. However, this makes the screen jump on
+  // offsets. Still not sure how to fix that.
   // TPTODO: This MUST be fixed or else we can't do diagonal movement properly.
   int distance_moved = CalculateDistanceMoved();
 
@@ -314,6 +321,8 @@ bool MapSprite::LoadAnimations(const std::string& _filepath)
     int tile_width = sprite_script.ReadData<int>("width", -1);
     int tile_height = sprite_script.ReadData<int>("width", -1);
 
+    int num_loops = sprite_script.ReadData<int>("num_loops", -1);
+
     int num_frames = sprite_script.ReadData<int>("num_frames", -1);
     int frame_time = sprite_script.ReadData<int>("frame_time", -1);
 
@@ -358,8 +367,10 @@ bool MapSprite::LoadAnimations(const std::string& _filepath)
       animations[animation_name]->AddFrame(resource_id, frame_time);
       sprite_script.CloseTable(); // Closes {x, y}
     }
-
     sprite_script.CloseTable(); // Closes frame_rects
+
+    animations[animation_name]->SetNumberLoops(num_loops);
+
     sprite_script.CloseTable(); // Closes animation[i]
   }
   return true;
@@ -369,23 +380,36 @@ void MapSprite::Update()
 {
   //bool was_moved = has_moved;
 
+  if (IsAttacking() && animations[current_animation]->IsFinished())
+  {
+    animations[current_animation]->Reset();
+    attacking = false;
+    finished_attacking = true;
+  }
+
   // Collision detection stuffs
   VirtualSprite::Update();
 
   std::string new_anim = "";
   if (IsMoving())
     new_anim += "walk-";
+  else if (IsAttacking())
+  {
+      animations[current_animation]->SetFinished(false);
+      new_anim += "attack-";
+      finished_attacking = false;
+  }
   else
     new_anim += "idle-";
 
-  if(direction == DIRECTION_NORTH || direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST)
-      new_anim += "north";
-  else if(direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_SOUTHEAST)
-      new_anim += "south";
-  else if(direction == DIRECTION_WEST || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_NORTHWEST)
-      new_anim += "west";
-  else if(direction == DIRECTION_EAST || direction == DIRECTION_SOUTHEAST || direction == DIRECTION_NORTHEAST)
-      new_anim += "east";
+  if (direction == DIRECTION_NORTH || direction == DIRECTION_NORTHWEST || direction == DIRECTION_NORTHEAST)
+    new_anim += "north";
+  else if (direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_SOUTHEAST)
+    new_anim += "south";
+  else if (direction == DIRECTION_WEST || direction == DIRECTION_SOUTHWEST || direction == DIRECTION_NORTHWEST)
+    new_anim += "west";
+  else if (direction == DIRECTION_EAST || direction == DIRECTION_SOUTHEAST || direction == DIRECTION_NORTHEAST)
+    new_anim += "east";
 
   current_animation = new_anim;
 
@@ -421,11 +445,20 @@ void MapSprite::Draw()
 
 EnemySprite::EnemySprite()
   : MapSprite(GROUND_OBJECT)
-  , state(State::HOSTILE)
+  , state(State::SPAWNING)
   , time_elapsed(0)
+  , attack_range(45)
+  , base_aggro(20)
+  , aggro_range(base_aggro)
+  , aggro_box(0, 0, 0, 0)
+  , stats(nullptr)
 {
   object_type = ENEMY_TYPE;
   moving = false;
+
+  stats = new Statistics();
+  stats->SetMaxHealth(100);
+  stats->SetCurrentHealth(100);
 }
 
 EnemySprite::~EnemySprite()
@@ -441,10 +474,23 @@ void EnemySprite::Update()
   switch (state)
   {
     case State::SPAWNING:
-
+      state = State::HOSTILE;
       break;
     case State::HOSTILE:
       UpdateHostile();
+      break;
+    case State::DYING:
+      current_animation = "death-south";
+
+      if (!current_animation.empty())
+      {
+        if (animations[current_animation]->IsFinished())
+        {
+          cout << "Enemy Dead" << endl;
+          state = State::DEAD;
+        }
+        animations[current_animation]->Update();
+      }
       break;
     case State::DEAD:
     default:
@@ -473,11 +519,22 @@ void EnemySprite::Draw()
     {
       MapRectangle rect = GetGridCollisionRectangle(x, y);
       sf::RectangleShape r(sf::Vector2f(rect.right - rect.left,
-                                           rect.bottom - rect.top));
+                                        rect.bottom - rect.top));
       r.setOutlineColor(sf::Color::Red);
       r.setOutlineThickness(1.f);
       r.setFillColor(sf::Color::Transparent);
       r.setPosition(rect.left, rect.top);
+      rpg_video::VideoManager->DrawShape(r);
+
+      r = sf::RectangleShape(sf::Vector2f(aggro_box.right - aggro_box.left,
+                                          aggro_box.bottom - aggro_box.top));
+      r.setOutlineColor(sf::Color::Yellow);
+      r.setOutlineThickness(1.f);
+      r.setFillColor(sf::Color::Transparent);
+
+      float x = map_mode->GetScreenXCoordinate(aggro_box.left);
+      float y = map_mode->GetScreenYCoordinate(aggro_box.top);
+      r.setPosition(x, y);
       rpg_video::VideoManager->DrawShape(r);
     }
   }
@@ -485,25 +542,132 @@ void EnemySprite::Draw()
 
 void EnemySprite::UpdateHostile()
 {
+  if (stats->GetCurrentHealth() <= 0)
+  {
+    cout << "Enemy Dying" << endl;
+    state = State::DYING;
+  }
+
   VirtualSprite* camera = MapMode::CurrentInstance()->GetCamera();
-  sf::Vector2i camera_pos = camera->GetPosition();
+  sf::Vector2i camera_pos = camera->GetCenterPosition();
 
-  sf::Vector2i delta_pos = sf::Vector2i(GetPosition().x - camera_pos.x,
-                                        GetPosition().y - camera_pos.y);
+  sf::Vector2i delta_pos = sf::Vector2i(GetCenterPosition().x - camera_pos.x,
+                                        GetCenterPosition().y - camera_pos.y);
 
-  // TPTODO: Make enemy update distance dynamic somehow
-  if (abs(delta_pos.x) > 1024 || abs(delta_pos.y) > 720)
+  if (abs(delta_pos.x) > rpg_video::VideoManager->GetScreenWidth() * 1.5 ||
+      abs(delta_pos.y) > rpg_video::VideoManager->GetScreenHeight() * 1.5)
     return;
 
   MapSprite::Update();
 
+  aggro_box.left = GetPosition().x - aggro_range;
+  aggro_box.top = GetPosition().y - aggro_range;
+  aggro_box.right = GetPosition().x + dimensions.x + aggro_range;
+  aggro_box.bottom = GetPosition().y + dimensions.y + aggro_range;
+
+  bool player_in_aggro = false;
+  if (MapRectangle::CheckIntersection(aggro_box,
+                                      camera->GetGridCollisionRectangle()))
+    player_in_aggro = true;
+
+  if (player_in_aggro)
+  {
+    aggro_range = base_aggro + 8;
+
+    // if (MapRectangle::InRange(this->GetGridCollisionRectangle(),
+    //                           camera->GetGridCollisionRectangle(), 3))
+    sf::Vector2i this_pos = GetCenterPosition();
+    float dist = sqrt(pow(this_pos.x - camera_pos.x, 2) + pow(this_pos.y - camera_pos.y, 2));
+    if (dist <= attack_range)
+    {
+      cout << "In Attack Range" << endl;
+      moving = false;
+    }
+    else
+    {
+      // cout << "Searching..." << endl;
+
+      int tolerance = 3;
+
+      if (delta_pos.x < 0 - tolerance && delta_pos.y < 0 - tolerance)
+        SetDirection(DIRECTION_SOUTHEAST);
+      else if (delta_pos.x < 0 - tolerance && delta_pos.y > 0 + tolerance)
+        SetDirection(DIRECTION_NORTHEAST);
+      else if (delta_pos.x < 0 - tolerance)
+        SetDirection(DIRECTION_EAST);
+
+      else if (delta_pos.x > 0 + tolerance && delta_pos.y < 0 - tolerance)
+        SetDirection(DIRECTION_SOUTHWEST);
+      else if (delta_pos.x > 0 + tolerance && delta_pos.y > 0 + tolerance)
+        SetDirection(DIRECTION_NORTHWEST);
+      else if (delta_pos.x > 0 + tolerance)
+        SetDirection(DIRECTION_WEST);
+
+      else if (delta_pos.y < 0)
+        SetDirection(DIRECTION_SOUTH);
+      else
+        SetDirection(DIRECTION_SOUTH);
+      moving = true;
+    }
+    return;
+  }
+  else
+    aggro_range = base_aggro;
+
+  // Handle monsters with way points.
+  if (!way_points.empty())
+  {
+    moving = true;
+
+    if (GetCenterPosition().x == way_points[current_way_point].x &&
+        GetCenterPosition().y == way_points[current_way_point].y)
+    {
+      if (++current_way_point >= way_points.size())
+        current_way_point = 0;
+    }
+    else
+    {
+      float x_delta = GetCenterPosition().x - way_points[current_way_point].x;
+      float y_delta = GetCenterPosition().y - way_points[current_way_point].y;
+
+      if (x_delta < 0 && y_delta < 0)
+        SetDirection(DIRECTION_SOUTHEAST);
+      else if (x_delta < 0 && y_delta > 0)
+        SetDirection(DIRECTION_NORTHEAST);
+      else if (x_delta < 0)
+        SetDirection(DIRECTION_EAST);
+
+      else if (x_delta > 0 && y_delta < 0)
+        SetDirection(DIRECTION_SOUTHWEST);
+      else if (x_delta > 0 && y_delta > 0)
+        SetDirection(DIRECTION_NORTHWEST);
+      else if (x_delta > 0)
+        SetDirection(DIRECTION_WEST);
+
+      else if (y_delta < 0)
+        SetDirection(DIRECTION_SOUTH);
+      else
+        SetDirection(DIRECTION_NORTH);
+    }
+
+  }
+
   time_elapsed += rpg_system::SystemManager->GetUpdateTime();
 
-  if (time_elapsed >= (rand() % 2000 + 750)) {
-      SetRandomDirection();
-      moving = true;
-      time_elapsed = 0;
-  }
+}
+
+void EnemySprite::AddWayPoint(const int _x, const int _y)
+{
+  // TPTODO: Check whether way point is already added
+  way_points.push_back(sf::Vector2i(_x, _y));
+}
+
+
+void EnemySprite::TakeDamage(const int _raw)
+{
+  cout << "Taking Damage: " << _raw << endl;
+  stats->SetCurrentHealth(stats->GetCurrentHealth() - _raw);
+  cout << "Remaining Health: " << stats->GetCurrentHealth() << endl;
 }
 
 }

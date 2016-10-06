@@ -107,18 +107,18 @@ public:
 
   /**
    * Returns the current width of the screen window.
-   * \return Unsigned integer of the screen width
+   * \return Integer of the screen width
    */
-  unsigned int GetScreenWidth() const
+  int GetScreenWidth() const
   {
     return screen_width;
   }
 
   /**
    * Returns the current height of the screen window.
-   * \return Unsigned integer of the screen height
+   * \return Integer of the screen height
    */
-  unsigned int GetScreenHeight() const
+  int GetScreenHeight() const
   {
     return screen_height;
   }

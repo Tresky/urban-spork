@@ -45,7 +45,6 @@ void BindEngineCode()
     "Create", &EnemySprite::Create,
     sol::base_classes, sol::bases<MapSprite, MapObject, VirtualSprite>()
   );
-
   map_mode_namespace.new_usertype<EventSupervisor>("EventSupervisor",
     "LaunchEventById", &EventSupervisor::LaunchEventById
   );
@@ -57,7 +56,6 @@ void BindEngineCode()
     "Create", &MapTransitionEvent::Create,
     sol::base_classes, sol::bases<MapEvent>()
   );
-
   map_mode_namespace.new_usertype<MapZone>("MapZone");
   map_mode_namespace.new_usertype<CameraZone>("CameraZone",
     "Create", &CameraZone::Create,

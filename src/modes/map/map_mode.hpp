@@ -87,6 +87,8 @@ public:
    */
   void Update();
 
+  void HandleAttacking();
+
   float GetScreenXCoordinate(float tile_position_x) const;
   float GetScreenYCoordinate(float tile_position_y) const;
 
@@ -147,10 +149,6 @@ private:
 
   //
   private_map_mode::MapFrame frame;
-  //sf::IntRect frame_bounds;
-
-  private_map_mode::MapSprite* temp;
-  private_map_mode::EnemySprite* enemy;
 
   rpg_script::ReadScript* read_script;
 

@@ -133,8 +133,8 @@ void DeconstructSingletons()
 {
   ModeEngine::DestroySingleton();
   GlobalEngine::DestroySingleton();
-  SystemEngine::DestroySingleton();
   VideoEngine::DestroySingleton();
+  SystemEngine::DestroySingleton();
   ResourceEngine::DestroySingleton();
   ScriptEngine::DestroySingleton();
   InputEngine::DestroySingleton();

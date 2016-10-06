@@ -21,6 +21,7 @@ enum MapObjectDrawLayer
 
 namespace private_map_mode
 {
+class VirtualSprite;
 class MapSprite;
 class MapZone;
 
@@ -42,6 +43,8 @@ public:
   MapRectangle GetGridCollisionRectangle() const;
 
   MapRectangle GetGridCollisionRectangle(float tile_x, float tile_y) const;
+
+  bool IsCollidingWith(MapObject* other_object) const;
 
   MapObjectDrawLayer GetObjectDrawLayer() const
   {
@@ -80,9 +83,6 @@ public:
 
   virtual void Update() = 0;
   virtual void Draw() = 0;
-
-  //bool ShouldDraw();
-
 
 protected:
   unsigned int object_id;
@@ -137,6 +137,8 @@ public:
   void DrawObjects();
 
   void DrawMapZones();
+
+  MapObject* FindClosestObject(const VirtualSprite* _source, const ObjectType _type, float _dist);
 private:
 
   unsigned int id_counter;

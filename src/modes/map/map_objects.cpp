@@ -2,6 +2,7 @@
 #include "map_objects.hpp"
 
 #include "map_zones.hpp"
+#include "map_sprites.hpp"
 #include "map_mode.hpp"
 
 namespace rpg_map_mode
@@ -56,6 +57,22 @@ MapRectangle MapObject::GetGridCollisionRectangle(float tile_x, float tile_y) co
   rect.top = tile_y;
   rect.bottom = tile_y + dimensions.y;
   return rect;
+}
+
+bool MapObject::IsCollidingWith(MapObject* other_object) const
+{
+   if (!other_object)
+    return false;
+   if (collision_mask == NO_COLLISION)
+    return false;
+   if (other_object->GetCollisionMask() == NO_COLLISION)
+    return false;
+
+  MapRectangle other_rect = other_object->GetGridCollisionRectangle();
+  if (!MapRectangle::CheckIntersection(GetGridCollisionRectangle(), other_rect))
+    return false;
+
+  return collision_mask & other_object->GetCollisionMask();
 }
 
 void MapObject::SetDimensions(const int _x, const int _y)
@@ -348,6 +365,31 @@ void ObjectSupervisor::DrawMapZones()
     zone->Draw();
 }
 
+MapObject* ObjectSupervisor::FindClosestObject(const VirtualSprite* _source,
+                                               const ObjectType _type,
+                                               float _dist)
+{
+  MapRectangle search_area = _source->GetGridCollisionRectangle();
+  search_area.left -= _dist;
+  search_area.right += _dist;
+  search_area.top -= _dist;
+  search_area.bottom += _dist;
+
+  std::vector<MapObject*> valid;
+
+  for (MapObject* obj : ground_objects)
+  {
+    if (obj == _source)
+      continue;
+    if (MapRectangle::CheckIntersection(obj->GetGridCollisionRectangle(), search_area))
+      valid.push_back(obj);
+  }
+
+  if (valid.empty())
+    return nullptr;
+
+  return valid[0];
+}
 
 
 }

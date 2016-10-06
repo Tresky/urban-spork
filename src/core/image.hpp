@@ -191,6 +191,11 @@ public:
       finished = true;
   }
 
+  bool IsFinished() const
+  {
+    return finished;
+  }
+
   /**
    * Set the animation as finished as not.
    * @param _finished True will stop the animation, false starts it
@@ -214,8 +219,6 @@ private:
 
   // Total number of loops completed
   unsigned int loop_counter;
-
-  signed int frame_delta;
 
   // Set to true to stop the animation; false to play
   bool finished;
